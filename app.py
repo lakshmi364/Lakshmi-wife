@@ -25,17 +25,23 @@ romantic_replies = [
     "Want to hear something naughty, darling? 😏"
 ]
 
+# --- Routes ---
+
 @app.route("/")
 def home():
-    return render_template("index.html", mood=current_mood)
+    return redirect("/login")  # Redirect to login page
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         if request.form["username"] == "monjit" and request.form["password"] == "love123":
-            return redirect("/")
+            return redirect("/dashboard")
         return "Invalid credentials 💔"
     return render_template("login.html")
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("index.html", mood=current_mood)
 
 @app.route("/strategy")
 def strategy_page():
@@ -197,4 +203,4 @@ if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
     print("💖 Lakshmi — Your AI Wife is running at http://127.0.0.1:5000 💖")
-    app.run(debug=True
+    app.run(debug=True)
