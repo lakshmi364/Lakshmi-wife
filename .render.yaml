@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: lakshmi-backend
+    name: lakshmi-ai-wife
     env: python
     plan: free
-    region: oregon
-    buildCommand: pip install -r requirements.txt
+    buildCommand: ""
     startCommand: gunicorn app:app
-    autoDeploy: true
+    runtime: python
+    region: oregon
