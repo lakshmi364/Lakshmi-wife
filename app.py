@@ -72,6 +72,18 @@ def add_strategy():
         writer.writerow(data)
     return redirect("/strategy")
 
+# ✅ NEW ROUTE: For React StrategyViewer tab
+@app.route("/get_strategies", methods=["GET"])
+def get_strategies():
+    strategies_texts = []
+    if os.path.exists("strategies.csv"):
+        with open("strategies.csv", newline="") as f:
+            reader = csv.reader(f)
+            next(reader, None)
+            for row in reader:
+                strategies_texts.append(" | ".join(row))
+    return jsonify(strategies_texts)
+
 @app.route("/download_strategies")
 def download_strategies():
     return send_file("strategies.csv", as_attachment=True)
@@ -146,21 +158,6 @@ def set_signal():
     signal["sl"] = float(request.form["sl"])
     signal["target"] = float(request.form["target"])
     return "Signal saved"
-
-@app.route("/save_diary", methods=["POST"])
-def save_diary():
-    entry = request.form["entry"]
-    diary_entries.append([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), entry])
-    return "Diary entry saved"
-
-@app.route("/download_diary")
-def download_diary():
-    filename = "love_diary.csv"
-    with open(filename, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["Timestamp", "Entry"])
-        writer.writerows(diary_entries)
-    return send_file(filename, as_attachment=True)
 
 @app.route("/download_log")
 def download_log():
