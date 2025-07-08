@@ -2,10 +2,6 @@ services:
   - type: web
     name: lakshmi-ai-wife
     env: python
-    plan: free
-    region: oregon
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn app:app"
-    pythonVersion: 3.10.13
-    branch: main
-    rootDir: .
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars: []
