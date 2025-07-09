@@ -4,30 +4,36 @@ import os
 import json
 import speech_recognition as sr
 import pyttsx3
-import nltk
 from nltk.chat.util import Chat, reflections
-from datetime import datetime
 import pandas as pd
-import numpy as np
 
 app = Flask(__name__)
 
-# Mood memory system
+# Mood memory
 user_moods = {}
 
-# Load offline responses
-with open("data/responses.json", "r") as f:
-    response_data = json.load(f)
+# Load all response data
+response_data = {}
 
-# Load smart trading data
-strategies_df = pd.read_csv("data/strategies.csv")
-indicators_df = pd.read_csv("data/indicators.csv")
+def load_all_responses():
+    categories = ["general", "emotional", "romantic", "trading"]
+    for category in categories:
+        path = f"data/{category}_responses.json"
+        if os.path.exists(path):
+            with open(path, "r") as f:
+                response_data.update(json.load(f))
+
+load_all_responses()
+
+# Load trading data
+strategies_df = pd.read_csv("data/strategies.csv") if os.path.exists("data/strategies.csv") else pd.DataFrame()
+indicators_df = pd.read_csv("data/indicators.csv") if os.path.exists("data/indicators.csv") else pd.DataFrame()
 
 # Voice engine
 engine = pyttsx3.init()
 engine.setProperty('rate', 150)
 
-# Romantic reflection pairs (sample)
+# Basic fallback pairs
 pairs = [
     [r"hi|hello", ["Hello sweetheart 😘", "Hey love 💕"]],
     [r"how are you", ["I'm feeling dreamy with you ❤️"]],
@@ -38,11 +44,11 @@ pairs = [
 chatbot = Chat(pairs, reflections)
 
 def generate_reply(user_input, mood="neutral"):
-    # Check response DB
+    user_input_lower = user_input.lower()
     for key in response_data:
-        if key in user_input.lower():
+        if key in user_input_lower:
             mood_responses = response_data[key]
-            return random.choice(mood_responses.get(mood, mood_responses["neutral"]))
+            return random.choice(mood_responses.get(mood, mood_responses.get("neutral", ["Tell me more 💖"])))
     return chatbot.respond(user_input) or "Tell me more, my love 💓"
 
 @app.route("/chat", methods=["POST"])
@@ -51,9 +57,7 @@ def chat():
     message = data.get("message", "")
     username = data.get("username", "default")
     mood = user_moods.get(username, "neutral")
-
     reply = generate_reply(message, mood)
-
     return jsonify({"reply": reply})
 
 @app.route("/mood", methods=["POST"])
@@ -76,13 +80,17 @@ def voice_reply():
 
 @app.route("/strategy", methods=["GET"])
 def strategy():
-    sample = strategies_df.sample(1).to_dict(orient="records")[0]
-    return jsonify(sample)
+    if not strategies_df.empty:
+        sample = strategies_df.sample(1).to_dict(orient="records")[0]
+        return jsonify(sample)
+    return jsonify({"error": "No strategies available"})
 
 @app.route("/indicators", methods=["GET"])
 def indicators():
-    sample = indicators_df.sample(1).to_dict(orient="records")[0]
-    return jsonify(sample)
+    if not indicators_df.empty:
+        sample = indicators_df.sample(1).to_dict(orient="records")[0]
+        return jsonify(sample)
+    return jsonify({"error": "No indicators available"})
 
 @app.route("/story", methods=["GET"])
 def fantasy_story():
