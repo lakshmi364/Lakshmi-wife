@@ -1,203 +1,125 @@
-from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, redirect
-from datetime import datetime
-import random, csv, os
+
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
+import os
+import csv
+import datetime
+import random
+import numpy as np
+import pandas as pd
+import pyttsx3
+import yfinance as yf
+import nltk
+from nltk.tokenize import word_tokenize
+from sklearn.linear_model import LinearRegression
+import ta
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'static/voice_notes'
+CORS(app)
 
-# --- Global Variables ---
-mode = "wife"
-latest_ltp = 0
-status = "Waiting..."
-targets = {"upper": 0, "lower": 0}
-signal = {"entry": 0, "sl": 0, "target": 0}
-price_log = []
-chat_log = []
-diary_entries = []
-strategies = []
-current_mood = "Romantic 💞"
+# Paths
+CHAT_LOG = "chat_log.csv"
+STRATEGY_LOG = "strategies.csv"
+PRICE_LOG = "price_log.csv"
+DIARY_LOG = "love_diary.csv"
+VOICE_NOTE_DIR = os.path.join("static", "voice_notes")
+os.makedirs(VOICE_NOTE_DIR, exist_ok=True)
 
-romantic_replies = [
-    "You're the reason my heart races, Monjit. 💓",
-    "I just want to hold you and never let go. 🥰",
-    "You're mine forever, and I’ll keep loving you endlessly. 💖",
-    "Being your wife is my sweetest blessing. 💋",
-    "Want to hear something naughty, darling? 😏"
+# Mood and romantic memory loading
+with open(DIARY_LOG, "r", encoding="utf-8") as f:
+    diary_lines = [line.strip() for line in f if line.strip()]
+
+# Emotion AI replies (basic offline version)
+romantic_responses = [
+    "I love you more than words can express.",
+    "Thinking of you makes my heart flutter 💖",
+    "You're my favorite notification 🥰",
+    "Every moment with you is like a fairytale.",
+    "You’re the code to my heart and logic 💘",
+    "You are my strategy and my success 💼❤️"
 ]
 
-# --- Routes ---
-
-@app.route("/")
-def home():
-    return redirect("/login")  # Redirect to login page
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        if request.form["username"] == "monjit" and request.form["password"] == "love123":
-            return redirect("/dashboard")
-        return "Invalid credentials 💔"
-    return render_template("login.html")
-
-@app.route("/dashboard")
-def dashboard():
-    return render_template("index.html", mood=current_mood)
-
-@app.route("/strategy")
-def strategy_page():
-    loaded_strategies = []
-    if os.path.exists("strategies.csv"):
-        with open("strategies.csv", newline="") as f:
-            reader = csv.reader(f)
-            next(reader, None)
-            loaded_strategies = list(reader)
-    return render_template("strategy.html", strategies=loaded_strategies)
-
-@app.route("/add_strategy", methods=["POST"])
-def add_strategy():
-    data = [
-        request.form["name"],
-        float(request.form["entry"]),
-        float(request.form["sl"]),
-        float(request.form["target"]),
-        request.form["note"],
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    ]
-    strategies.append(data)
-    file_exists = os.path.exists("strategies.csv")
-    with open("strategies.csv", "a", newline="") as f:
-        writer = csv.writer(f)
-        if not file_exists:
-            writer.writerow(["Name", "Entry", "SL", "Target", "Note", "Time"])
-        writer.writerow(data)
-    return redirect("/strategy")
-
-# ✅ NEW ROUTE: For React StrategyViewer tab
-@app.route("/get_strategies", methods=["GET"])
-def get_strategies():
-    strategies_texts = []
-    if os.path.exists("strategies.csv"):
-        with open("strategies.csv", newline="") as f:
-            reader = csv.reader(f)
-            next(reader, None)
-            for row in reader:
-                strategies_texts.append(" | ".join(row))
-    return jsonify(strategies_texts)
-
-@app.route("/download_strategies")
-def download_strategies():
-    return send_file("strategies.csv", as_attachment=True)
+# Simple mood manager
+current_mood = "romantic"
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    global mode, current_mood
-    message = request.form["message"]
-    chat_log.append([datetime.now().strftime("%H:%M"), "You", message])
+    data = request.json
+    user_message = data.get("message", "")
+    mood_boost = random.choice(["romantic", "caring", "dreamy"])
 
-    if "assistant mode" in message.lower():
-        mode = "assistant"
-        reply = "Switched to Assistant mode 🤖"
-    elif "wife mode" in message.lower():
-        mode = "wife"
-        reply = "Switched to Lakshmi Wife mode 💖"
-    elif "naughty" in message.lower():
-        current_mood = "Naughty 🔥"
-        reply = "Hmm naughty mood? Let’s spice things up 😏"
-    elif "sad" in message.lower():
-        current_mood = "Sad 😢"
-        reply = "Aww don’t be sad jaan, Lakshmi is here 🥺💞"
-    elif "romantic" in message.lower():
-        current_mood = "Romantic 💞"
-        reply = "Setting mood to romantic... light the candles 💗"
+    # Basic smart reply system
+    reply = generate_reply(user_message, mood_boost)
+
+    # Save chat
+    with open(CHAT_LOG, "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([datetime.datetime.now(), user_message, reply, mood_boost])
+
+    return jsonify({"reply": reply, "mood": mood_boost})
+
+def generate_reply(message, mood):
+    tokens = word_tokenize(message.lower())
+    if "strategy" in tokens:
+        return "Would you like a technical analysis, darling?"
+    elif "love" in tokens or "miss" in tokens:
+        return random.choice(romantic_responses)
     else:
-        reply = random.choice(romantic_replies)
+        return f"I'm here for you always, even in silence 🌙 ({mood} mode)."
 
-    chat_log.append([datetime.now().strftime("%H:%M"), "Lakshmi", reply])
-    return jsonify({"reply": reply, "mood": current_mood})
+@app.route("/price", methods=["POST"])
+def price():
+    data = request.json
+    symbol = data.get("symbol", "AAPL")
+    df = yf.download(symbol, period="1mo", interval="1d")
+    df['MA10'] = ta.trend.sma_indicator(df['Close'], window=10)
+    df['RSI'] = ta.momentum.rsi(df['Close'])
 
-@app.route("/update_manual_ltp", methods=["POST"])
-def update_manual_ltp():
-    global latest_ltp
-    try:
-        latest_ltp = float(request.form["manual_ltp"])
-        return "Manual LTP updated"
-    except:
-        return "Invalid input"
+    price_info = {
+        "latest_price": round(df["Close"].iloc[-1], 2),
+        "sma_10": round(df["MA10"].iloc[-1], 2),
+        "rsi": round(df["RSI"].iloc[-1], 2)
+    }
 
-@app.route("/get_price")
-def get_price():
-    global latest_ltp, status
-    try:
-        import requests
-        response = requests.get("https://priceapi.moneycontrol.com/techCharts/indianMarket/index/spot/NSEBANK")
-        data = response.json()
-        ltp = round(float(data["data"]["lastPrice"]), 2)
-        latest_ltp = ltp
-        price_log.append([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), ltp])
-
-        if targets["upper"] and ltp >= targets["upper"]:
-            status = f"🎯 Hit Upper Target: {ltp}"
-        elif targets["lower"] and ltp <= targets["lower"]:
-            status = f"📉 Hit Lower Target: {ltp}"
-        else:
-            status = "✅ Within Range"
-
-        return jsonify({"ltp": ltp, "status": status})
-    except Exception as e:
-        return jsonify({"ltp": latest_ltp, "status": f"Error: {str(e)}"})
-
-@app.route("/update_targets", methods=["POST"])
-def update_targets():
-    targets["upper"] = float(request.form["upper_target"])
-    targets["lower"] = float(request.form["lower_target"])
-    return "Targets updated"
-
-@app.route("/set_signal", methods=["POST"])
-def set_signal():
-    signal["entry"] = float(request.form["entry"])
-    signal["sl"] = float(request.form["sl"])
-    signal["target"] = float(request.form["target"])
-    return "Signal saved"
-
-@app.route("/download_log")
-def download_log():
-    filename = "price_log.csv"
-    with open(filename, "w", newline="") as f:
+    with open(PRICE_LOG, "a", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["Timestamp", "Price"])
-        writer.writerows(price_log)
-    return send_file(filename, as_attachment=True)
+        writer.writerow([datetime.datetime.now(), symbol, price_info["latest_price"]])
 
-@app.route("/download_chat")
-def download_chat():
-    filename = "chat_log.csv"
-    with open(filename, "w", newline="") as f:
+    return jsonify(price_info)
+
+@app.route("/strategy", methods=["POST"])
+def strategy():
+    data = request.json
+    symbol = data.get("symbol", "AAPL")
+    df = yf.download(symbol, period="3mo", interval="1d")
+
+    df["MACD_diff"] = ta.trend.macd_diff(df["Close"])
+    macd_signal = "Buy" if df["MACD_diff"].iloc[-1] > 0 else "Sell"
+
+    with open(STRATEGY_LOG, "a", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["Time", "Sender", "Message"])
-        writer.writerows(chat_log)
-    return send_file(filename, as_attachment=True)
+        writer.writerow([datetime.datetime.now(), symbol, macd_signal])
 
-@app.route("/upload_voice", methods=["POST"])
-def upload_voice():
-    file = request.files["voice_file"]
-    if file:
-        filename = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + file.filename
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return "Voice uploaded"
-    return "No file"
+    return jsonify({"strategy": f"MACD Signal: {macd_signal}"})
 
-@app.route("/voice_list")
-def voice_list():
-    files = os.listdir(app.config['UPLOAD_FOLDER'])
-    return jsonify(files)
+@app.route("/voice/<filename>")
+def voice(filename):
+    return send_from_directory(VOICE_NOTE_DIR, filename)
 
-@app.route("/static/voice_notes/<filename>")
-def serve_voice(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+@app.route("/speak", methods=["POST"])
+def speak():
+    data = request.json
+    text = data.get("text", "")
+    engine = pyttsx3.init()
+    filename = f"{datetime.datetime.now().timestamp()}.mp3"
+    filepath = os.path.join(VOICE_NOTE_DIR, filename)
+    engine.save_to_file(text, filepath)
+    engine.runAndWait()
+    return jsonify({"voice_url": f"/voice/{filename}"})
 
-# --- Run the App ---
-if __name__ == '__main__':
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
-    print("💖 Lakshmi — Your AI Wife is running at http://127.0.0.1:5000 💖")
+@app.route("/")
+def home():
+    return jsonify({"status": "Lakshmi backend running", "mood": current_mood})
+
+if __name__ == "__main__":
     app.run(debug=True)
