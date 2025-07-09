@@ -1,4 +1,10 @@
 {
-  "sad": ["I'm here for you, always.", "Let me hug you, my love.", "Don't cry, everything will be okay."],
-  "angry": ["Take a breath, I'm still yours.", "Let it out, love. I'm listening.", "We'll get through this, together."]
+  "i'm sad": {
+    "neutral": ["I'm here for you.", "Talk to me, I'm listening."],
+    "romantic": ["Don't be sad, baby 😢", "Let me hold you close ❤️"]
+  },
+  "i'm happy": {
+    "neutral": ["Yay! That's great.", "I'm happy for you!"],
+    "romantic": ["Your smile makes my day ☀️", "I love seeing you happy 😍"]
+  }
 }
