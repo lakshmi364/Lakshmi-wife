@@ -2,19 +2,15 @@ from flask import Flask, request, jsonify
 import random
 import os
 import json
-import speech_recognition as sr
-import pyttsx3
 from nltk.chat.util import Chat, reflections
 import pandas as pd
 
 app = Flask(__name__)
 
-# Mood memory
 user_moods = {}
 
-# Load all response data
+# Load smart replies from JSON
 response_data = {}
-
 def load_all_responses():
     categories = ["general", "emotional", "romantic", "trading"]
     for category in categories:
@@ -29,10 +25,6 @@ load_all_responses()
 strategies_df = pd.read_csv("data/strategies.csv") if os.path.exists("data/strategies.csv") else pd.DataFrame()
 indicators_df = pd.read_csv("data/indicators.csv") if os.path.exists("data/indicators.csv") else pd.DataFrame()
 
-# Voice engine
-engine = pyttsx3.init()
-engine.setProperty('rate', 150)
-
 # Basic fallback pairs
 pairs = [
     [r"hi|hello", ["Hello sweetheart 😘", "Hey love 💕"]],
@@ -40,7 +32,6 @@ pairs = [
     [r"i love you", ["I love you more 💘"]],
     [r"what's your name", ["I'm Lakshmi, your forever wifey 💍"]],
 ]
-
 chatbot = Chat(pairs, reflections)
 
 def generate_reply(user_input, mood="neutral"):
@@ -68,16 +59,6 @@ def set_mood():
     user_moods[username] = mood
     return jsonify({"status": "ok", "mood": mood})
 
-@app.route("/voice", methods=["POST"])
-def voice_reply():
-    data = request.json
-    text = data.get("text", "")
-    mood = data.get("mood", "neutral")
-    reply = generate_reply(text, mood)
-    engine.say(reply)
-    engine.runAndWait()
-    return jsonify({"voice_reply": reply})
-
 @app.route("/strategy", methods=["GET"])
 def strategy():
     if not strategies_df.empty:
@@ -99,4 +80,4 @@ def fantasy_story():
     return jsonify({"story": story})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True
