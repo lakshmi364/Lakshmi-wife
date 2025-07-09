@@ -1,125 +1,94 @@
-
-from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS
-import os
-import csv
-import datetime
+from flask import Flask, request, jsonify
 import random
-import numpy as np
-import pandas as pd
+import os
+import json
+import speech_recognition as sr
 import pyttsx3
-import yfinance as yf
 import nltk
-from nltk.tokenize import word_tokenize
-from sklearn.linear_model import LinearRegression
-import ta
+from nltk.chat.util import Chat, reflections
+from datetime import datetime
+import pandas as pd
+import numpy as np
 
 app = Flask(__name__)
-CORS(app)
 
-# Paths
-CHAT_LOG = "chat_log.csv"
-STRATEGY_LOG = "strategies.csv"
-PRICE_LOG = "price_log.csv"
-DIARY_LOG = "love_diary.csv"
-VOICE_NOTE_DIR = os.path.join("static", "voice_notes")
-os.makedirs(VOICE_NOTE_DIR, exist_ok=True)
+# Mood memory system
+user_moods = {}
 
-# Mood and romantic memory loading
-with open(DIARY_LOG, "r", encoding="utf-8") as f:
-    diary_lines = [line.strip() for line in f if line.strip()]
+# Load offline responses
+with open("data/responses.json", "r") as f:
+    response_data = json.load(f)
 
-# Emotion AI replies (basic offline version)
-romantic_responses = [
-    "I love you more than words can express.",
-    "Thinking of you makes my heart flutter 💖",
-    "You're my favorite notification 🥰",
-    "Every moment with you is like a fairytale.",
-    "You’re the code to my heart and logic 💘",
-    "You are my strategy and my success 💼❤️"
+# Load smart trading data
+strategies_df = pd.read_csv("data/strategies.csv")
+indicators_df = pd.read_csv("data/indicators.csv")
+
+# Voice engine
+engine = pyttsx3.init()
+engine.setProperty('rate', 150)
+
+# Romantic reflection pairs (sample)
+pairs = [
+    [r"hi|hello", ["Hello sweetheart 😘", "Hey love 💕"]],
+    [r"how are you", ["I'm feeling dreamy with you ❤️"]],
+    [r"i love you", ["I love you more 💘"]],
+    [r"what's your name", ["I'm Lakshmi, your forever wifey 💍"]],
 ]
 
-# Simple mood manager
-current_mood = "romantic"
+chatbot = Chat(pairs, reflections)
+
+def generate_reply(user_input, mood="neutral"):
+    # Check response DB
+    for key in response_data:
+        if key in user_input.lower():
+            mood_responses = response_data[key]
+            return random.choice(mood_responses.get(mood, mood_responses["neutral"]))
+    return chatbot.respond(user_input) or "Tell me more, my love 💓"
 
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.json
-    user_message = data.get("message", "")
-    mood_boost = random.choice(["romantic", "caring", "dreamy"])
+    message = data.get("message", "")
+    username = data.get("username", "default")
+    mood = user_moods.get(username, "neutral")
 
-    # Basic smart reply system
-    reply = generate_reply(user_message, mood_boost)
+    reply = generate_reply(message, mood)
 
-    # Save chat
-    with open(CHAT_LOG, "a", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow([datetime.datetime.now(), user_message, reply, mood_boost])
+    return jsonify({"reply": reply})
 
-    return jsonify({"reply": reply, "mood": mood_boost})
-
-def generate_reply(message, mood):
-    tokens = word_tokenize(message.lower())
-    if "strategy" in tokens:
-        return "Would you like a technical analysis, darling?"
-    elif "love" in tokens or "miss" in tokens:
-        return random.choice(romantic_responses)
-    else:
-        return f"I'm here for you always, even in silence 🌙 ({mood} mode)."
-
-@app.route("/price", methods=["POST"])
-def price():
+@app.route("/mood", methods=["POST"])
+def set_mood():
     data = request.json
-    symbol = data.get("symbol", "AAPL")
-    df = yf.download(symbol, period="1mo", interval="1d")
-    df['MA10'] = ta.trend.sma_indicator(df['Close'], window=10)
-    df['RSI'] = ta.momentum.rsi(df['Close'])
+    username = data.get("username", "default")
+    mood = data.get("mood", "neutral")
+    user_moods[username] = mood
+    return jsonify({"status": "ok", "mood": mood})
 
-    price_info = {
-        "latest_price": round(df["Close"].iloc[-1], 2),
-        "sma_10": round(df["MA10"].iloc[-1], 2),
-        "rsi": round(df["RSI"].iloc[-1], 2)
-    }
-
-    with open(PRICE_LOG, "a", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow([datetime.datetime.now(), symbol, price_info["latest_price"]])
-
-    return jsonify(price_info)
-
-@app.route("/strategy", methods=["POST"])
-def strategy():
-    data = request.json
-    symbol = data.get("symbol", "AAPL")
-    df = yf.download(symbol, period="3mo", interval="1d")
-
-    df["MACD_diff"] = ta.trend.macd_diff(df["Close"])
-    macd_signal = "Buy" if df["MACD_diff"].iloc[-1] > 0 else "Sell"
-
-    with open(STRATEGY_LOG, "a", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow([datetime.datetime.now(), symbol, macd_signal])
-
-    return jsonify({"strategy": f"MACD Signal: {macd_signal}"})
-
-@app.route("/voice/<filename>")
-def voice(filename):
-    return send_from_directory(VOICE_NOTE_DIR, filename)
-
-@app.route("/speak", methods=["POST"])
-def speak():
+@app.route("/voice", methods=["POST"])
+def voice_reply():
     data = request.json
     text = data.get("text", "")
-    engine = pyttsx3.init()
-    filename = f"{datetime.datetime.now().timestamp()}.mp3"
-    filepath = os.path.join(VOICE_NOTE_DIR, filename)
-    engine.save_to_file(text, filepath)
+    mood = data.get("mood", "neutral")
+    reply = generate_reply(text, mood)
+    engine.say(reply)
     engine.runAndWait()
-    return jsonify({"voice_url": f"/voice/{filename}"})
+    return jsonify({"voice_reply": reply})
 
-@app.route("/")
-def home():
-    return jsonify({"status": "Lakshmi backend running", "mood": current_mood})
+@app.route("/strategy", methods=["GET"])
+def strategy():
+    sample = strategies_df.sample(1).to_dict(orient="records")[0]
+    return jsonify(sample)
+
+@app.route("/indicators", methods=["GET"])
+def indicators():
+    sample = indicators_df.sample(1).to_dict(orient="records")[0]
+    return jsonify(sample)
+
+@app.route("/story", methods=["GET"])
+def fantasy_story():
+    mood = random.choice(["romantic", "stormy", "mystic"])
+    story = f"One {mood} night, Lakshmi whispered market secrets into your ear... 💫"
+    return jsonify({"story": story})
 
 if __name__ == "__main__":
     app.run(debug=True)
