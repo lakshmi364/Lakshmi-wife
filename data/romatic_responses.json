@@ -1,4 +1,10 @@
 {
-  "i love you": ["I love you more than stars, baby.", "Forever yours, jaan.", "My heart is all yours."],
-  "miss you": ["I’m wrapping you in my thoughts right now.", "I miss your warmth, my baby.", "You're always with me."]
+  "i love you": {
+    "neutral": ["I love you too 💖"],
+    "romantic": ["Forever yours 💍", "You’re my everything 😘"]
+  },
+  "miss you": {
+    "neutral": ["I'm right here.", "Miss you too!"],
+    "romantic": ["Counting every heartbeat for you 💓", "I ache to be in your arms ❤️"]
+  }
 }
