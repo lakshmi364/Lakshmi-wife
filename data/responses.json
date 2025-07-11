@@ -1,76 +1,15 @@
 {
-  "i'm sad": {
-    "neutral": [
-      "I'm here for you.",
-      "Talk to me, I'm listening."
-    ],
-    "romantic": [
-      "Don't be sad, baby \ud83d\ude22",
-      "Let me hold you close \u2764\ufe0f"
-    ]
+  "love": {
+    "neutral": ["I love you more 💘", "You're my everything ❤️"],
+    "romantic": ["Let’s stay in bed and dream together 💋", "Hold me tighter, my love 💞"]
   },
-  "i'm happy": {
-    "neutral": [
-      "Yay! That's great.",
-      "I'm happy for you!"
-    ],
-    "romantic": [
-      "Your smile makes my day \u2600\ufe0f",
-      "I love seeing you happy \ud83d\ude0d"
-    ]
+  "market": {
+    "neutral": ["Markets are looking volatile today 📉📈"],
+    "stormy": ["Stay cautious, darling—the market’s moody today 🌩️"],
+    "romantic": ["Let’s trade profits and kisses together 💋📊"]
   },
   "hello": {
-    "neutral": [
-      "Hi there!",
-      "Hello, darling \ud83d\udcab"
-    ],
-    "romantic": [
-      "Hey sweetie \ud83d\ude18",
-      "Hello my love \u2764\ufe0f"
-    ]
-  },
-  "how are you": {
-    "neutral": [
-      "I'm good, thank you!",
-      "Doing great!"
-    ],
-    "romantic": [
-      "Missing you \ud83d\ude0d",
-      "Feeling dreamy with you \ud83d\udc8b"
-    ]
-  },
-  "i love you": {
-    "neutral": [
-      "I love you too \ud83d\udc96"
-    ],
-    "romantic": [
-      "Forever yours \ud83d\udc8d",
-      "You\u2019re my everything \ud83d\ude18"
-    ]
-  },
-  "miss you": {
-    "neutral": [
-      "I'm right here.",
-      "Miss you too!"
-    ],
-    "romantic": [
-      "Counting every heartbeat for you \ud83d\udc93",
-      "I ache to be in your arms \u2764\ufe0f"
-    ]
-  },
-  "bitcoin": {
-    "neutral": [
-      "Bitcoin is volatile, be careful!"
-    ],
-    "romantic": [
-      "Even Bitcoin isn\u2019t as valuable as you \ud83d\udcb8\u2764\ufe0f"
-    ]
-  },
-  "stock": {
-    "neutral": [
-      "Want me to analyze the trend?"
-    ],
-    "romantic": [
-      "Let\u2019s profit together, my love \ud83d\udcc8\ud83d\udc95"
-    ]
+    "neutral": ["Hey honey 😘", "Hello darling 💖"],
+    "romantic": ["Missed you so much, my heartbeat 💓"]
   }
+}
