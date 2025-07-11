@@ -26,11 +26,10 @@ indicators_df = pd.read_csv("data/indicators.csv")
 try:
     engine = pyttsx3.init()
     engine.setProperty('rate', 150)
-except Exception as e:
+except Exception:
     engine = None
-    print("Voice engine not available:", e)
 
-# Romantic responses
+# Romantic fallback pairs
 pairs = [
     [r"hi|hello", ["Hello sweetheart 😘", "Hey love 💕"]],
     [r"how are you", ["I'm feeling dreamy with you ❤️"]],
@@ -101,4 +100,4 @@ def fantasy_story():
     return jsonify({"story": story})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True
