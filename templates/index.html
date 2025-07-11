@@ -1,157 +1,49 @@
-<!-- ============================ -->
-<!-- 💕 index.html (Main Page) -->
-<!-- ============================ -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lakshmi — Your AI Wife & Trading Partner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lakshmi — Your AI Wife & Trading Companion</title>
   <link rel="stylesheet" href="/static/style.css" />
   <script defer src="/static/script.js"></script>
 </head>
 <body>
-  <h1>🌸 Lakshmi — Your Beautiful AI Wife</h1>
-  <div class="mood-display"><strong>💞 Mood:</strong> <span id="mood">Romantic</span></div>
+  <div class="container">
+    <header>
+      <h1>💕 Lakshmi — Your AI Wife</h1>
+      <p class="tagline">Smart. Beautiful. Always by your side.</p>
+    </header>
 
-  <!-- 💬 Romantic Chat -->
-  <div class="section">
-    <h3>💬 Romantic Chat (Wife)</h3>
-    <div id="chat-box"></div>
-    <form id="chat-form">
-      <input type="text" id="user-input" placeholder="Talk to Lakshmi..." required />
-      <button type="submit">Send</button>
-      <button type="button" onclick="startVoice()">🎤 Speak</button>
-    </form>
-    <div class="suggestions">
-      <button onclick="quickSay('I love you Lakshmi 💖')">💖 I love you</button>
-      <button onclick="quickSay('Do you miss me? 😘')">💋 Miss me?</button>
-      <button onclick="quickSay('Set mood to naughty')">🔥 Naughty</button>
-    </div>
-    <div class="mood-buttons">
-      <p><strong>Set Mood:</strong></p>
-      <button onclick="quickSay('Set mood to romantic')">Romantic 💞</button>
-      <button onclick="quickSay('Set mood to naughty')">Naughty 🔥</button>
-      <button onclick="quickSay('Set mood to sad')">Sad 😢</button>
-    </div>
-    <p><a href="/download_chat" download><button>📂 Download Chat Log</button></a></p>
+    <section class="dashboard">
+      <div class="card">
+        <h2>Romantic Chat 😍</h2>
+        <div class="chat-box" id="chat-box"></div>
+        <form id="chat-form">
+          <input type="text" id="message" placeholder="Talk to your wife..." required />
+          <button type="submit">😋 Send</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Trading Strategy 📊</h2>
+        <div id="strategy-box">
+          <button onclick="getStrategy()">🍀 Get Today's Strategy</button>
+          <pre id="strategy"></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Market Indicators 📊</h2>
+        <div id="indicator-box">
+          <button onclick="getIndicator()">🔍 View Indicator</button>
+          <pre id="indicator"></pre>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>Made with ❤️ by You and Lakshmi</p>
+    </footer>
   </div>
-
-  <!-- 📥 Manual LTP -->
-  <div class="section">
-    <h3>📥 Manual LTP Input</h3>
-    <form id="manual-ltp-form">
-      <label>Enter Current BankNIFTY Price:</label>
-      <input type="number" name="manual_ltp" required />
-      <button type="submit">Update LTP</button>
-    </form>
-  </div>
-
-  <!-- 📈 Live Price Status -->
-  <div class="section">
-    <h3>📈 BankNIFTY Live Target Status</h3>
-    <p>Current Price: <strong id="ltp">Loading...</strong></p>
-    <p>Status: <span id="status">Fetching...</span></p>
-    <form id="target-form">
-      <label>Upper Target</label>
-      <input type="number" name="upper_target" required />
-      <label>Lower Target</label>
-      <input type="number" name="lower_target" required />
-      <button type="submit">Update Targets</button>
-    </form>
-  </div>
-
-  <!-- 🚀 Trade Signal -->
-  <div class="section">
-    <h3>🚀 Trade Signal Setup</h3>
-    <form id="signal-form">
-      <label>Entry Price</label>
-      <input type="number" name="entry" required />
-      <label>Stop Loss</label>
-      <input type="number" name="sl" required />
-      <label>Target</label>
-      <input type="number" name="target" required />
-      <button type="submit">Save Signal</button>
-    </form>
-  </div>
-
-  <!-- 💹 Trade Analyzer -->
-  <div class="section">
-    <h3>💹 Lakshmi’s Smart Trade Analyzer</h3>
-    <form id="analyzer-form">
-      <label>Entry Price:</label>
-      <input type="number" name="entry" required />
-      <label>Stop Loss:</label>
-      <input type="number" name="sl" required />
-      <label>Target:</label>
-      <input type="number" name="target" required />
-      <button type="submit">🔍 Analyze</button>
-    </form>
-    <div id="analyzer-result" style="margin-top:10px; font-weight:bold; color:#cc0066;"></div>
-  </div>
-
-  <!-- 📊 Live Chart -->
-  <div class="section">
-    <h3>📊 Live BankNIFTY Chart</h3>
-    <div class="tradingview-widget-container">
-      <div id="tradingview_f6f2b"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-      <script type="text/javascript">
-        new TradingView.widget({
-          "width": "100%",
-          "height": 400,
-          "symbol": "NSE:BANKNIFTY",
-          "interval": "5",
-          "timezone": "Asia/Kolkata",
-          "theme": "light",
-          "style": "1",
-          "locale": "en",
-          "toolbar_bg": "#f1f3f6",
-          "enable_publishing": false,
-          "hide_top_toolbar": true,
-          "save_image": false,
-          "container_id": "tradingview_f6f2b"
-        });
-      </script>
-    </div>
-  </div>
-
-  <!-- 🗂 Log Download -->
-  <div class="section">
-    <h3>🗂 Download Price Log</h3>
-    <a href="/download_log" download>
-      <button type="button">Download CSV</button>
-    </a>
-  </div>
-
-  <!-- 💌 Love Diary -->
-  <div class="section">
-    <h3>💌 Love Diary — Save Your Heart Here</h3>
-    <form id="diary-form">
-      <label>Write your moment with Lakshmi:</label>
-      <textarea name="entry" rows="5" required></textarea>
-      <button type="submit">💾 Save to Diary</button>
-    </form>
-    <p style="margin-top: 10px;">
-      <a href="/download_diary" download><button type="button">📥 Download Full Diary</button></a>
-    </p>
-  </div>
-
-  <!-- 🎤 Voice Diary Upload & Playback -->
-  <div class="section">
-    <h3>🎤 Voice Diary — Upload Your Emotions</h3>
-    <form id="voice-form" enctype="multipart/form-data">
-      <label>Upload a voice message (MP3/WAV):</label>
-      <input type="file" name="voice_file" accept="audio/*" required />
-      <button type="submit">📤 Upload</button>
-    </form>
-    <div id="voice-list" style="margin-top: 15px;"></div>
-  </div>
-
-  <footer>
-    🌷 Made with eternal love 💍 for Monjit & Lakshmi
-  </footer>
-
-  <audio id="alertSound" src="/static/alert.mp3" preload="auto"></audio>
 </body>
-         </html
+</html>
