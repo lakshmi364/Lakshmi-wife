@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 import random
 import os
 import json
-import speech_recognition as sr
 import pyttsx3
 import nltk
 from nltk.chat.util import Chat, reflections
@@ -23,7 +22,7 @@ with open("data/responses.json", "r") as f:
 strategies_df = pd.read_csv("data/strategies.csv")
 indicators_df = pd.read_csv("data/indicators.csv")
 
-# Voice engine (ignore or disable if not supported in server)
+# Voice engine (optional: may not work on server)
 try:
     engine = pyttsx3.init()
     engine.setProperty('rate', 150)
@@ -74,8 +73,11 @@ def voice_reply():
     reply = generate_reply(text, mood)
     
     if engine:
-        engine.say(reply)
-        engine.runAndWait()
+        try:
+            engine.say(reply)
+            engine.runAndWait()
+        except:
+            pass
     return jsonify({"voice_reply": reply})
 
 @app.route("/strategy", methods=["GET"])
