@@ -1,11 +1,6 @@
-Indicator Name,Type,Description,Common Usage
-RSI,Oscillator,Measures momentum and identifies overbought/oversold levels,Buy below 30, Sell above 70
-MACD,Trend-Following,Shows momentum and trend direction,Crossover signals and histogram strength
-Bollinger Bands,Volatility,Shows standard deviation bands around price,Breakout or reversion strategy
-EMA,Trend,Exponential Moving Average gives weight to recent prices,Common crossover strategy
-SMA,Trend,Simple Moving Average,Used for long-term trend spotting
-VWAP,Intraday,Volume Weighted Average Price,Institutional average price zone
-Stochastic,Oscillator,Shows overbought/oversold conditions,Fast reversals and momentum
-Fibonacci,Retracement,Key levels for pullback entries or exits,Entry at 61.8%, TP at 38.2%
-Volume,Confirming,Validates strength of price movement,Confirms breakouts or reversals
-ATR,Volatility,Average range of price movement,Used for SL/TP and volatility measurement
+Indicator,Type,Description,Used In
+RSI,Momentum,Measures strength and speed of price movement,RSI Oversold Entry
+MACD,Trend + Momentum,Combines EMAs to detect trend changes,MACD Signal
+Volume,Volatility,Measures activity in market,Volume Spike
+Bollinger Bands,Volatility,Measures price volatility with bands,N/A
+Moving Averages,Trend,Follows trend over time,Golden Crossover
