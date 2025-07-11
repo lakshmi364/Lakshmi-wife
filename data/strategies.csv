@@ -1,0 +1,11 @@
+Strategy Name,Description,Indicators Used,Success Rate,Time Frame
+Golden Crossover,A bullish signal when 50 EMA crosses above 200 EMA,EMA,76%,1D
+Breakout Pullback,Entry after breakout and pullback confirmation,Volume,RSI,72%,4H
+RSI Divergence,Price and RSI divergence indicates reversal,RSI,MACD,69%,1H
+Bollinger Squeeze,Volatility contraction before expansion,Bollinger Bands,Volume,74%,1D
+MACD Momentum,MACD crossover with histogram confirmation,MACD,EMA,70%,1H
+Support Bounce,Buy near support with bullish confirmation,Price Action,Volume,68%,1H
+Supply-Demand Flip,Zone flip signals trend change,Supply-Demand Zones,67%,15M
+Inside Bar Breakout,Entry on breakout of inside bar,Price Action,Volume,65%,1H
+Fibonacci Pullback,Entry at 61.8% retracement,Fibonacci,EMA,71%,4H
+VWAP Reversal,Reversal from VWAP zone during intraday,VWAP,Volume,73%,5M
