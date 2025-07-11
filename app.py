@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import random
 import os
 import json
@@ -30,7 +30,7 @@ except Exception as e:
     print("Error loading indicators.csv:", e)
     indicators_df = pd.DataFrame()
 
-# Romantic responses
+# Romantic chatbot responses
 pairs = [
     [r"hi|hello", ["Hello sweetheart 😘", "Hey love 💕"]],
     [r"how are you", ["I'm feeling dreamy with you ❤️"]],
@@ -47,9 +47,23 @@ def generate_reply(user_input, mood="neutral"):
             return random.choice(mood_responses.get(mood, mood_responses["neutral"]))
     return chatbot.respond(user_input) or "Tell me more, my love 💓"
 
+# ROUTES
+
 @app.route("/")
 def home():
     return jsonify({"message": "Lakshmi AI Wife is alive ❤️"})
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("index.html")
+
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+@app.route("/strategy-page")
+def strategy_page():
+    return render_template("strategy.html")
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -89,4 +103,4 @@ def fantasy_story():
     return jsonify({"story": story})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True
