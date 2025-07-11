@@ -11,32 +11,24 @@ import numpy as np
 
 app = Flask(__name__)
 
-# Ensure data folder and fallback
-def load_json_file(path, fallback={}):
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            return json.load(f)
-    return fallback
-
-def load_csv_file(path):
-    if os.path.exists(path):
-        return pd.read_csv(path)
-    return pd.DataFrame()
-
 # Mood memory system
 user_moods = {}
 
-# Load data safely
-response_data = load_json_file("data/responses.json", fallback={"default": {"neutral": ["Hey love 💖"]}})
-strategies_df = load_csv_file("data/strategies.csv")
-indicators_df = load_csv_file("data/indicators.csv")
+# Load offline responses
+with open("data/responses.json", "r") as f:
+    response_data = json.load(f)
 
-# Voice engine (optional for server)
+# Load smart trading data
+strategies_df = pd.read_csv("data/strategies.csv")
+indicators_df = pd.read_csv("data/indicators.csv")
+
+# Voice engine (optional)
 try:
     engine = pyttsx3.init()
     engine.setProperty('rate', 150)
 except Exception as e:
     engine = None
+    print("Voice engine not available:", e)
 
 # Romantic responses
 pairs = [
@@ -52,8 +44,12 @@ def generate_reply(user_input, mood="neutral"):
     for key in response_data:
         if key in user_input.lower():
             mood_responses = response_data[key]
-            return random.choice(mood_responses.get(mood, mood_responses.get("neutral", ["Love you 💗"])))
+            return random.choice(mood_responses.get(mood, mood_responses["neutral"]))
     return chatbot.respond(user_input) or "Tell me more, my love 💓"
+
+@app.route("/", methods=["GET"])
+def home():
+    return "💖 Welcome to Lakshmi — Your Trading Wife API 💖"
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -61,6 +57,7 @@ def chat():
     message = data.get("message", "")
     username = data.get("username", "default")
     mood = user_moods.get(username, "neutral")
+
     reply = generate_reply(message, mood)
     return jsonify({"reply": reply})
 
@@ -78,6 +75,7 @@ def voice_reply():
     text = data.get("text", "")
     mood = data.get("mood", "neutral")
     reply = generate_reply(text, mood)
+    
     if engine:
         try:
             engine.say(reply)
@@ -88,15 +86,11 @@ def voice_reply():
 
 @app.route("/strategy", methods=["GET"])
 def strategy():
-    if strategies_df.empty:
-        return jsonify({"error": "No strategy data found"})
     sample = strategies_df.sample(1).to_dict(orient="records")[0]
     return jsonify(sample)
 
 @app.route("/indicators", methods=["GET"])
 def indicators():
-    if indicators_df.empty:
-        return jsonify({"error": "No indicators data found"})
     sample = indicators_df.sample(1).to_dict(orient="records")[0]
     return jsonify(sample)
 
