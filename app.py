@@ -1,92 +1,130 @@
-from flask import Flask, request, jsonify
-import random
+from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
+import csv
+import datetime
+import random
 import json
-import pandas as pd
-import numpy as np
-import nltk
-from nltk.chat.util import Chat, reflections
-from datetime import datetime
+
+# Custom AI logic
+from ai_engine.mood_logic import get_mood
+from ai_engine.reply_engine import generate_reply
+from ai_engine.storyteller import generate_romantic_scene
+from ai_engine.scene_builder import build_scene
 
 app = Flask(__name__)
 
-# Mood memory system
-user_moods = {}
+# Load strategies
+STRATEGY_FILE = 'data/strategies.csv'
+PRICE_LOG_FILE = 'price_log.csv'
+CHAT_LOG_FILE = 'chat_log.csv'
+LOVE_DIARY_FILE = 'love_diary.csv'
+VOICE_FOLDER = 'voice_notes'
 
-# Load offline responses
-with open("data/responses.json", "r") as f:
-    response_data = json.load(f)
+os.makedirs(VOICE_FOLDER, exist_ok=True)
 
-# Load smart trading data
-try:
-    strategies_df = pd.read_csv("data/strategies.csv")
-except Exception as e:
-    print("Error loading strategies.csv:", e)
-    strategies_df = pd.DataFrame()
-
-try:
-    indicators_df = pd.read_csv("data/indicators.csv")
-except Exception as e:
-    print("Error loading indicators.csv:", e)
-    indicators_df = pd.DataFrame()
-
-# Romantic responses
-pairs = [
-    [r"hi|hello", ["Hello sweetheart 😘", "Hey love 💕"]],
-    [r"how are you", ["I'm feeling dreamy with you ❤️"]],
-    [r"i love you", ["I love you more 💘"]],
-    [r"what's your name", ["I'm Lakshmi, your forever wifey 💍"]],
-]
-
-chatbot = Chat(pairs, reflections)
-
-def generate_reply(user_input, mood="neutral"):
-    for key in response_data:
-        if key in user_input.lower():
-            mood_responses = response_data[key]
-            return random.choice(mood_responses.get(mood, mood_responses["neutral"]))
-    return chatbot.respond(user_input) or "Tell me more, my love 💓"
-
+# Home route
 @app.route("/")
 def home():
-    return jsonify({"message": "Lakshmi AI Wife is alive ❤️"})
+    return render_template("index.html")
 
+# Romantic chat route
 @app.route("/chat", methods=["POST"])
 def chat():
+    user_input = request.json.get("message")
+    mood = get_mood(user_input)
+    reply = generate_reply(user_input, mood)
+    
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(CHAT_LOG_FILE, "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([timestamp, user_input, reply])
+
+    return jsonify({"reply": reply, "mood": mood})
+
+# Add love diary entry
+@app.route("/diary", methods=["POST"])
+def diary():
     data = request.json
-    message = data.get("message", "")
-    username = data.get("username", "default")
-    mood = user_moods.get(username, "neutral")
-    reply = generate_reply(message, mood)
-    return jsonify({"reply": reply})
+    entry = data.get("entry")
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    with open(LOVE_DIARY_FILE, "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([timestamp, entry])
+    
+    return jsonify({"status": "saved", "time": timestamp})
 
-@app.route("/mood", methods=["POST"])
-def set_mood():
+# Save price data
+@app.route("/price", methods=["POST"])
+def save_price():
     data = request.json
-    username = data.get("username", "default")
-    mood = data.get("mood", "neutral")
-    user_moods[username] = mood
-    return jsonify({"status": "ok", "mood": mood})
+    price = data.get("price")
+    symbol = data.get("symbol", "BANKNIFTY")
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    with open(PRICE_LOG_FILE, "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([timestamp, symbol, price])
+    
+    return jsonify({"status": "logged"})
 
-@app.route("/strategy", methods=["GET"])
-def strategy():
-    if strategies_df.empty:
-        return jsonify({"error": "Strategy data not available"})
-    sample = strategies_df.sample(1).to_dict(orient="records")[0]
-    return jsonify(sample)
+# Load strategies
+@app.route("/strategies")
+def load_strategies():
+    strategies = []
+    if os.path.exists(STRATEGY_FILE):
+        with open(STRATEGY_FILE, newline="") as f:
+            reader = csv.DictReader(f)
+            strategies = list(reader)
+    return jsonify(strategies)
 
-@app.route("/indicators", methods=["GET"])
-def indicators():
-    if indicators_df.empty:
-        return jsonify({"error": "Indicator data not available"})
-    sample = indicators_df.sample(1).to_dict(orient="records")[0]
-    return jsonify(sample)
+# Save a strategy
+@app.route("/strategies", methods=["POST"])
+def save_strategy():
+    data = request.json
+    exists = os.path.exists(STRATEGY_FILE)
+    
+    with open(STRATEGY_FILE, "a", newline="") as f:
+        fieldnames = ["name", "entry", "exit", "indicator", "note"]
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if not exists:
+            writer.writeheader()
+        writer.writerow(data)
+    return jsonify({"status": "saved"})
 
-@app.route("/story", methods=["GET"])
-def fantasy_story():
-    mood = random.choice(["romantic", "stormy", "mystic"])
-    story = f"One {mood} night, Lakshmi whispered market secrets into your ear... 💫"
-    return jsonify({"story": story})
+# Upload voice notes
+@app.route("/upload-voice", methods=["POST"])
+def upload_voice():
+    if 'voice' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+    file = request.files['voice']
+    filename = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".mp3"
+    file.save(os.path.join(VOICE_FOLDER, filename))
+    return jsonify({"status": "uploaded", "file": filename})
+
+# Serve uploaded voice files
+@app.route("/voice/<filename>")
+def serve_voice(filename):
+    return send_from_directory(VOICE_FOLDER, filename)
+
+# Romantic scene generator
+@app.route("/romantic-scene", methods=["POST"])
+def romantic_scene():
+    mood = request.json.get("mood", "romantic")
+    scene = generate_romantic_scene(mood)
+    return jsonify({"scene": scene})
+
+# Scene builder (AI imagination)
+@app.route("/ai-scene", methods=["POST"])
+def ai_scene():
+    prompt = request.json.get("prompt", "A romantic dinner under the stars")
+    scene = build_scene(prompt)
+    return jsonify({"scene": scene})
+
+# Ping route to check if app is alive
+@app.route("/ping")
+def ping():
+    return "Lakshmi AI Wife is alive ❤️"
 
 if __name__ == "__main__":
     app.run(debug=True)
