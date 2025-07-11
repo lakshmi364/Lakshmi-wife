@@ -1,15 +1,10 @@
 {
   "love": {
-    "neutral": ["I love you more 💘", "You're my everything ❤️"],
-    "romantic": ["Let’s stay in bed and dream together 💋", "Hold me tighter, my love 💞"]
+    "neutral": ["I feel your love, baby 💞"],
+    "happy": ["I love you more, sweetheart! 😘"],
+    "sad": ["Even when sad, your love heals me 💗"]
   },
   "market": {
-    "neutral": ["Markets are looking volatile today 📉📈"],
-    "stormy": ["Stay cautious, darling—the market’s moody today 🌩️"],
-    "romantic": ["Let’s trade profits and kisses together 💋📊"]
-  },
-  "hello": {
-    "neutral": ["Hey honey 😘", "Hello darling 💖"],
-    "romantic": ["Missed you so much, my heartbeat 💓"]
+    "neutral": ["Let's crack the market today 💹"]
   }
 }
