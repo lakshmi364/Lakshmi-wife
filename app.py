@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import nltk
 from nltk.chat.util import Chat, reflections
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -13,28 +14,21 @@ app = Flask(__name__)
 user_moods = {}
 
 # Load offline responses
-response_data = {}
-try:
-    with open("data/responses.json", "r") as f:
-        response_data = json.load(f)
-except Exception as e:
-    print("Error loading responses.json:", e)
+with open("data/responses.json", "r") as f:
+    response_data = json.load(f)
 
 # Load smart trading data
-strategies_df = pd.DataFrame()
-indicators_df = pd.DataFrame()
-
 try:
-    if os.path.exists("data/strategies.csv"):
-        strategies_df = pd.read_csv("data/strategies.csv")
+    strategies_df = pd.read_csv("data/strategies.csv")
 except Exception as e:
     print("Error loading strategies.csv:", e)
+    strategies_df = pd.DataFrame()
 
 try:
-    if os.path.exists("data/indicators.csv"):
-        indicators_df = pd.read_csv("data/indicators.csv")
+    indicators_df = pd.read_csv("data/indicators.csv")
 except Exception as e:
     print("Error loading indicators.csv:", e)
+    indicators_df = pd.DataFrame()
 
 # Romantic responses
 pairs = [
@@ -50,8 +44,12 @@ def generate_reply(user_input, mood="neutral"):
     for key in response_data:
         if key in user_input.lower():
             mood_responses = response_data[key]
-            return random.choice(mood_responses.get(mood, mood_responses.get("neutral", ["Tell me more 💖"])))
+            return random.choice(mood_responses.get(mood, mood_responses["neutral"]))
     return chatbot.respond(user_input) or "Tell me more, my love 💓"
+
+@app.route("/")
+def home():
+    return jsonify({"message": "Lakshmi AI Wife is alive ❤️"})
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -59,7 +57,6 @@ def chat():
     message = data.get("message", "")
     username = data.get("username", "default")
     mood = user_moods.get(username, "neutral")
-
     reply = generate_reply(message, mood)
     return jsonify({"reply": reply})
 
@@ -73,17 +70,17 @@ def set_mood():
 
 @app.route("/strategy", methods=["GET"])
 def strategy():
-    if not strategies_df.empty:
-        sample = strategies_df.sample(1).to_dict(orient="records")[0]
-        return jsonify(sample)
-    return jsonify({"error": "No strategies available"})
+    if strategies_df.empty:
+        return jsonify({"error": "Strategy data not available"})
+    sample = strategies_df.sample(1).to_dict(orient="records")[0]
+    return jsonify(sample)
 
 @app.route("/indicators", methods=["GET"])
 def indicators():
-    if not indicators_df.empty:
-        sample = indicators_df.sample(1).to_dict(orient="records")[0]
-        return jsonify(sample)
-    return jsonify({"error": "No indicators available"})
+    if indicators_df.empty:
+        return jsonify({"error": "Indicator data not available"})
+    sample = indicators_df.sample(1).to_dict(orient="records")[0]
+    return jsonify(sample)
 
 @app.route("/story", methods=["GET"])
 def fantasy_story():
