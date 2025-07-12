@@ -126,7 +126,7 @@
     <!-- 🍰 Manual LTP -->
     <div class="section">
       <h3>🍰 Manual LTP Input</h3>
-      <form method="post" action="/update_ltp">
+      <form method="post" action="/update_manual_ltp"> <!-- ✅ FIXED -->
         <input type="number" name="manual_ltp" placeholder="Enter LTP" required />
         <button type="submit">Update</button>
       </form>
@@ -137,7 +137,7 @@
       <h3>📉 BankNIFTY Status</h3>
       <p>Current Price: <strong>{{ current_price }}</strong></p>
       <p>Status: <strong>{{ price_status }}</strong></p>
-      <form method="post" action="/set_targets">
+      <form method="post" action="/update_targets"> <!-- ✅ FIXED -->
         <input name="upper_target" type="number" placeholder="Upper Target" />
         <input name="lower_target" type="number" placeholder="Lower Target" />
         <button type="submit">Set Targets</button>
@@ -147,7 +147,7 @@
     <!-- 🚀 Trade Signal -->
     <div class="section">
       <h3>🚀 Trade Signal</h3>
-      <form method="post" action="/save_signal">
+      <form method="post" action="/set_signal"> <!-- ✅ FIXED -->
         <input name="entry" type="number" placeholder="Entry Price" required />
         <input name="sl" type="number" placeholder="Stop Loss" required />
         <input name="target" type="number" placeholder="Target" required />
@@ -211,7 +211,6 @@
       alert("Voice input feature is not implemented in this version.");
     }
 
-    // ✅ CHAT FIX: JavaScript to send chat message via AJAX and show Lakshmi's reply
     document.getElementById("chat-form").addEventListener("submit", async function(e) {
       e.preventDefault();
       const input = document.querySelector('input[name="message"]');
@@ -235,4 +234,4 @@
     });
   </script>
 </body>
-</html
+          </html
