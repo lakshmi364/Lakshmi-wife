@@ -90,12 +90,30 @@
     #chat-box p {
       margin: 5px 0;
     }
+    .top-right {
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+    }
+    .top-right span {
+      margin-right: 12px;
+      font-weight: bold;
+    }
+    .top-right form {
+      display: inline;
+    }
   </style>
 </head>
 <body>
   <header>
     <span style="margin-left: 15px;">✨ Lakshmi Dashboard</span>
-    <div class="menu-icon" onclick="toggleMenu()">⋮</div>
+    <div class="top-right">
+      <span>Welcome, {{ username }} 💞</span>
+      <form method="POST" action="/logout">
+        <button style="background:#fff; color:#d6006b; padding:6px 12px; border-radius:6px;">Logout</button>
+      </form>
+      <div class="menu-icon" onclick="toggleMenu()">⋮</div>
+    </div>
     <div class="dropdown" id="menu-dropdown">
       <a href="/strategy">📘 Strategy Builder</a>
       <a href="/candle">🔮 Candle Predictor</a>
