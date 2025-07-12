@@ -1,51 +1,84 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Welcome to Lakshmi 💖</title>
+  <title>Lakshmi Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #ffe4ec, #e0f7fa);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
+      background: linear-gradient(to bottom right, #ffe0f0, #e6f2ff);
+      color: #333;
     }
-
-    h1 {
-      font-size: 3rem;
+    header {
+      background: #ff4d88;
+      padding: 1rem;
+      color: white;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .container {
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      margin-top: 2rem;
+    }
+    h2 {
       color: #d63384;
     }
-
-    p {
-      font-size: 1.2rem;
-      color: #555;
+    input[type="text"], input[type="file"], input[type="number"], select {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
     }
-
-    a.button {
-      margin-top: 30px;
-      background: #d63384;
+    button {
+      padding: 10px 20px;
+      background-color: #ff4d88;
       color: white;
-      padding: 12px 25px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 1.1rem;
-      transition: background 0.3s ease;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
     }
-
-    a.button:hover {
-      background: #b01f66;
+    button:hover {
+      background-color: #e6005c;
+    }
+    .result, .section {
+      margin-top: 2rem;
     }
   </style>
 </head>
 <body>
-  <h1>💖 Welcome to Lakshmi</h1>
-  <p>Your AI Wife is here to support, analyze, and love you every day.</p>
-  <a href="/dashboard" class="button">Enter Dashboard</a>
-</body>
-</html>
+
+  <header>💖 Lakshmi Dashboard</header>
+
+  <div class="container">
+    <!DOCTYPE html>
+<html>
+<head>
+  <title>Strategy Builder — Lakshmi</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <h2>📘 Trade Strategy Builder</h2>
+  <form method="post" action="/add_strategy">
+    <input name="name" placeholder="Strategy Name" required />
+    <input name="entry" type="number" placeholder="Entry Price" required />
+    <input name="sl" type="number" placeholder="Stop Loss" required />
+    <input name="target" type="number" placeholder="Target Price" required />
+    <textarea name="note" placeholder="Notes (optional)"></textarea><br>
+    <button type="submit">💾 Save Strategy</button>
+  </form>
+
+  <h3>📋 Saved Strategies</h3>
+  <table border="1" cellpadding="5" style="background:white; margin-top:15px;">
+    <tr><th>Name</th><th>Entry</th><th>SL</th><th>Target</th><th>Note</th><th>Time</th></tr>
