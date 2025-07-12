@@ -2,7 +2,11 @@
 
 # We'll simulate GPT-style mood-based replies + add hooks for trading logic
 
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify import csv import os from datetime import datetime import random
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+import csv
+import os
+from datetime import datetime
+import random
 
 app = Flask(name) app.secret_key = 'your_secret_key'
 
