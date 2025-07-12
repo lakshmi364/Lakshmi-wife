@@ -1,8 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Lakshmi AI Trading Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lakshmi Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
   <style>
     body {
@@ -20,25 +20,55 @@
       font-weight: bold;
       position: relative;
     }
+    .menu {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+    }
+    .menu-button {
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: white;
+    }
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      background: white;
+      color: black;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    .dropdown a {
+      display: block;
+      padding: 10px 20px;
+      text-decoration: none;
+      color: #333;
+    }
+    .dropdown a:hover {
+      background-color: #f2f2f2;
+    }
     .container {
       padding: 2rem;
-      max-width: 1000px;
+      max-width: 900px;
       margin: auto;
       background: white;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       border-radius: 16px;
       margin-top: 2rem;
     }
-    h2, h3, h4 {
+    h2 {
       color: #d63384;
     }
-    input, textarea, select {
+    input[type="text"], input[type="file"], input[type="number"], select, textarea {
       padding: 10px;
       margin: 5px 0;
       width: 100%;
       border-radius: 8px;
       border: 1px solid #ccc;
-      font-family: 'Segoe UI', sans-serif;
     }
     button {
       padding: 10px 20px;
@@ -53,83 +83,79 @@
     button:hover {
       background-color: #e6005c;
     }
-    .tool-box {
+    .result, .section {
       margin-top: 2rem;
-      padding: 1.5rem;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      background-color: #f9f9f9;
-    }
-    summary {
-      cursor: pointer;
-      font-size: 18px;
-      font-weight: bold;
     }
   </style>
 </head>
-<body>
-
-<header>💖 Lakshmi AI Trading Dashboard</header>
-
-<div class="container">
-  <!-- Tool 1: AI Candle Predictor -->
-  <details class="tool-box">
-    <summary>📊 AI Candle Predictor</summary>
-    <p>Predict whether the next candle will be <strong>Bullish</strong> or <strong>Bearish</strong> based on recent price data.</p>
-    <button onclick="alert('Coming soon: AI Candle Forecast')">Run Prediction</button>
-    <div id="candle_result"></div>
-  </details>
-
-  <!-- Tool 2: Strategy Builder -->
-  <details class="tool-box" open>
-    <summary>🏗️ Strategy Builder</summary>
-    <form method="post" action="/add_strategy">
-      <input name="name" placeholder="Strategy Name" required />
-      <input name="entry" type="number" placeholder="Entry Price" required />
-      <input name="sl" type="number" placeholder="Stop Loss" required />
-      <input name="target" type="number" placeholder="Target Price" required />
-      <textarea name="note" placeholder="Notes (optional)"></textarea><br>
-      <button type="submit">💾 Save Strategy</button>
+<body>  <header>
+    💖 Lakshmi Dashboard
+    <div class="menu">
+      <button class="menu-button" onclick="toggleDropdown()">⋮</button>
+      <div class="dropdown" id="dropdown-menu">
+        <a href="/strategy">📘 Strategy Builder</a>
+        <a href="/candle">🔮 Candle Predictor</a>
+        <a href="/matrix">📊 Strategy Matrix</a>
+        <a href="/askai">🤖 Ask AI</a>
+      </div>
+    </div>
+  </header>  <div class="container">
+    <h2>💬 Romantic Chat</h2>
+    <form id="chat-form">
+      <input type="text" id="user-input" placeholder="Talk to Lakshmi..." required>
+      <button type="submit">Send</button>
     </form>
-    <h4>📋 Saved Strategies</h4>
-    <table border="1" cellpadding="5" style="background:white; margin-top:10px;">
-      <tr><th>Name</th><th>Entry</th><th>SL</th><th>Target</th><th>Note</th><th>Time</th></tr>
-      <!-- Strategy data to be rendered dynamically -->
-    </table>
-  </details
+    <div id="chat-box" style="margin-top:15px;"></div><h3>📥 Manual LTP Input</h3>
+<form id="manual-ltp-form">
+  <input type="number" name="manual_ltp" placeholder="Enter BankNIFTY Price" required />
+  <button type="submit">Update LTP</button>
+</form>
 
-  <!-- Tool 3: Multi-Strategy Signal Matrix -->
-  <details class="tool-box">
-    <summary>⚔️ Multi-Strategy Signal Matrix</summary>
-    <p>Compare multiple AI strategies for a combined decision matrix.</p>
-    <button onclick="alert('Coming soon: Multi-Strategy Analysis')">Analyze Market</button>
-    <div id="signal_matrix"></div>
-  </details>
+<h3>📈 Live Target Status</h3>
+<p>Current Price: <strong id="ltp">Loading...</strong></p>
+<p>Status: <span id="status">Fetching...</span></p>
+<form id="target-form">
+  <input type="number" name="upper_target" placeholder="Upper Target" required />
+  <input type="number" name="lower_target" placeholder="Lower Target" required />
+  <button type="submit">Update Targets</button>
+</form>
 
-  <!-- Tool 4: Smart Trade Logger -->
-  <details class="tool-box">
-    <summary>🧾 Smart Trade Logger</summary>
-    <p>Log your trades with reasoning and track results over time.</p>
-    <form method="post" action="/log_trade">
-      <input name="symbol" placeholder="Symbol (e.g. BTC/USD)" required />
-      <input name="action" placeholder="Action (Buy/Sell)" required />
-      <input name="price" type="number" placeholder="Price" required />
-      <textarea name="reason" placeholder="Why did you take this trade?"></textarea>
-      <button type="submit">📝 Log Trade</button>
-    </form>
-  </details>
+<h3>🚀 Trade Signal Setup</h3>
+<form id="signal-form">
+  <input type="number" name="entry" placeholder="Entry Price" required />
+  <input type="number" name="sl" placeholder="Stop Loss" required />
+  <input type="number" name="target" placeholder="Target Price" required />
+  <button type="submit">Save Signal</button>
+</form>
 
-  <!-- Tool 5: AI Trade Chat Assistant -->
-  <details class="tool-box">
-    <summary>🤖 AI Trade Chat Assistant</summary>
-    <p>Ask any question related to the market and get AI advice.</p>
-    <form method="post" action="/ask_ai">
-      <input name="question" placeholder="Type your question here..." />
-      <button type="submit">Ask AI</button>
-    </form>
-    <div id="ai_response"></div>
-  </details>
-</div>
+<h3>🗂 Download Logs</h3>
+<a href="/download_log"><button type="button">📈 Download Price Log</button></a>
+<a href="/download_chat"><button type="button">💬 Download Chat Log</button></a>
 
-</body>
+  </div>  <script>
+    function toggleDropdown() {
+      const menu = document.getElementById("dropdown-menu");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
+    document.addEventListener("click", function(e) {
+      const menu = document.getElementById("dropdown-menu");
+      const button = document.querySelector(".menu-button");
+      if (!button.contains(e.target) && !menu.contains(e.target)) {
+        menu.style.display = "none";
+      }
+    });
+
+    document.getElementById('chat-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('user-input');
+      const res = await fetch('/chat', {
+        method: 'POST',
+        body: new URLSearchParams({ message: input.value })
+      });
+      const data = await res.json();
+      document.getElementById('chat-box').innerHTML += `<p><strong>You:</strong> ${input.value}</p><p><strong>Lakshmi:</strong> ${data.reply}</p>`;
+      input.value = '';
+    });
+  </script></body>
 </html>
