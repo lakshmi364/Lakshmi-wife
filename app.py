@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, redirect, session, url_for
+from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, redirect, session
 from datetime import datetime
 import random, csv, os
 
@@ -35,11 +35,14 @@ def load_users():
         return []
 
 def save_user(username, password):
+    file_exists = os.path.isfile("users.csv")
     with open('users.csv', 'a', newline='') as f:
         writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(["username", "password"])
         writer.writerow([username, password])
 
-# --- Auth Routes ---
+# --- Routes ---
 @app.route("/")
 def home():
     return redirect("/login")
@@ -51,7 +54,7 @@ def signup():
         password = request.form["password"]
         users = load_users()
         if any(u['username'] == username for u in users):
-            return "Username already exists 💔"
+            return render_template("signup.html", error="Username already exists 💔")
         save_user(username, password)
         session['username'] = username
         return redirect("/dashboard")
@@ -67,7 +70,7 @@ def login():
             if u["username"] == username and u["password"] == password:
                 session['username'] = username
                 return redirect("/dashboard")
-        return "Invalid credentials 💔"
+        return render_template("login.html", error="Invalid credentials 💔")
     return render_template("login.html")
 
 @app.route("/logout", methods=["POST"])
@@ -75,12 +78,6 @@ def logout():
     session.pop('username', None)
     return redirect("/login")
 
-# --- Auth Guard ---
-def require_login():
-    if 'username' not in session:
-        return redirect("/login")
-
-# --- Core Pages ---
 @app.route("/dashboard")
 def dashboard():
     if 'username' not in session:
