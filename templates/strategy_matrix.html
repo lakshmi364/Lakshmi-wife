@@ -1,82 +1,86 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>📊 Multi-Strategy Matrix</title>
-  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+  <title>📊 Strategy Matrix — Lakshmi</title>
+  <link rel="stylesheet" href="/static/style.css">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f0faff;
-      padding: 2rem;
-      color: #333;
+      background: #fef7ff;
+      padding: 30px;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 18px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.1);
     }
     h2 {
-      color: #0077b6;
+      color: #993366;
       text-align: center;
     }
     form {
-      max-width: 700px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-top: 20px;
     }
     textarea {
       width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      height: 120px;
+      padding: 15px;
       font-size: 16px;
-      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
     }
     button {
-      background-color: #0077b6;
+      background-color: #ff4d88;
       color: white;
-      padding: 10px 20px;
       border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
       margin-top: 15px;
-      border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
     }
     button:hover {
-      background-color: #005f87;
+      background-color: #cc005f;
     }
     ul {
-      max-width: 700px;
-      margin: 20px auto;
-      padding: 15px;
-      background: #e6f7ff;
-      border-radius: 10px;
+      margin-top: 20px;
+      padding-left: 20px;
     }
-    a.back {
-      display: block;
-      text-align: center;
+    li {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    .back {
+      display: inline-block;
       margin-top: 30px;
-      color: #0077cc;
       text-decoration: none;
+      color: #cc007a;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h2>📊 Multi-Strategy Signal Matrix</h2>
+  <div class="container">
+    <h2>📊 Multi-Strategy Signal Matrix</h2>
+    <form method="post">
+      <textarea name="data" placeholder="Paste combined strategy or signal inputs here..." required></textarea>
+      <button type="submit">Analyze</button>
+    </form>
 
-  <form method="post">
-    <label>Paste Market Data or Strategy Logs:</label>
-    <textarea name="data" rows="5" placeholder="Enter market or strategy data here..." required></textarea>
-    <button type="submit">Analyze</button>
-  </form>
+    {% if signals %}
+      <ul>
+        {% for s in signals %}
+          <li>🔹 {{ s }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
 
-  {% if signals %}
-    <ul>
-      {% for s in signals %}
-        <li>{{ s }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-
-  <a href="/dashboard" class="back">← Back to Dashboard</a>
+    <a class="back" href="/dashboard">← Back to Dashboard</a>
+  </div>
 </body>
-</html
+</html>
