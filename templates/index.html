@@ -108,8 +108,10 @@
     <!-- 💬 Romantic Chat -->
     <div class="section">
       <h3>💬 Romantic Chat (Wife)</h3>
-      <div id="chat-box">{{ chat_log|safe }}</div>
-      <form id="chat-form" method="post" action="/chat">
+      <div id="chat-box">
+        <!-- Chat messages will appear here -->
+      </div>
+      <form id="chat-form">
         <input type="text" name="message" placeholder="Talk to Lakshmi..." required />
         <button type="submit">Send</button>
         <button type="button" onclick="startVoice()">🎤 Speak</button>
@@ -130,7 +132,7 @@
       </form>
     </div>
 
-    <!-- 📈 BankNIFTY Live -->
+    <!-- 📉 BankNIFTY Live -->
     <div class="section">
       <h3>📉 BankNIFTY Status</h3>
       <p>Current Price: <strong>{{ current_price }}</strong></p>
@@ -202,12 +204,35 @@
 
     function quickSay(text) {
       document.querySelector('input[name="message"]').value = text;
-      document.getElementById("chat-form").submit();
+      document.getElementById("chat-form").dispatchEvent(new Event('submit'));
     }
 
     function startVoice() {
       alert("Voice input feature is not implemented in this version.");
     }
+
+    // ✅ CHAT FIX: JavaScript to send chat message via AJAX and show Lakshmi's reply
+    document.getElementById("chat-form").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const input = document.querySelector('input[name="message"]');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const formData = new FormData();
+      formData.append("message", message);
+
+      const res = await fetch("/chat", {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+      chatBox.innerHTML += `<p><strong>Lakshmi:</strong> ${data.reply}</p>`;
+      input.value = "";
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
   </script>
 </body>
-</html>
+</html
