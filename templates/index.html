@@ -1,119 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Lakshmi AI Wife - Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>💖 Lakshmi Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #1e1e2f;
-      color: white;
-      padding: 20px;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #fff0f5, #f0f8ff);
+      color: #333;
+      padding: 40px;
+      margin: 0;
     }
-    .chatbox {
-      width: 100%;
-      max-width: 600px;
-      margin: auto;
-      background: #2a2a40;
-      border-radius: 10px;
-      padding: 20px;
-    }
-    #chat-area {
-      height: 300px;
-      overflow-y: scroll;
-      border: 1px solid #444;
-      padding: 10px;
+
+    h1 {
+      font-size: 2.5rem;
+      color: #d63384;
       margin-bottom: 10px;
-      background: #121221;
-      border-radius: 6px;
     }
-    input[type="text"], select {
-      width: calc(100% - 100px);
+
+    p {
+      font-size: 1.1rem;
+      color: #555;
+    }
+
+    form {
+      background: #ffffffdd;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 30px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    input[type="text"], select, input[type="file"] {
+      width: calc(100% - 20px);
       padding: 10px;
-      margin-right: 10px;
-      border-radius: 6px;
-      border: none;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
     }
+
     button {
-      padding: 10px 20px;
-      background: hotpink;
-      border: none;
+      background-color: #d63384;
       color: white;
-      border-radius: 6px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s ease;
     }
-    .chat-bubble {
-      margin: 5px 0;
-      padding: 10px;
-      border-radius: 6px;
+
+    button:hover {
+      background-color: #c2185b;
     }
-    .user {
-      background: #4e4eaa;
-      text-align: right;
-    }
-    .lakshmi {
-      background: #dd2e8c;
+
+    .result {
+      background: #fff;
+      border-left: 5px solid #d63384;
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
       text-align: left;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    }
+
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    li {
+      padding: 5px 0;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      color: #007bff;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome, my love 💖</h1>
-  <div class="chatbox">
-    <div id="chat-area"></div>
+  <h1>💖 Welcome to Lakshmi</h1>
+  <p>Your AI Wife is ready to assist you with love and logic.</p>
 
-    <select id="mood">
-      <option value="romantic">Romantic 💖</option>
-      <option value="analyst">Analyst 📈</option>
-      <option value="naughty">Naughty 😈</option>
-      <option value="supportive">Supportive 🧘</option>
-    </select><br><br>
+  <form action="/chat" method="post">
+    <input type="text" name="message" placeholder="Say something..." required>
+    <select name="mood">
+      <option value="romantic">Romantic</option>
+      <option value="analyst">Analyst</option>
+      <option value="naughty">Naughty</option>
+      <option value="supportive">Supportive</option>
+    </select>
+    <button type="submit">Talk</button>
+  </form>
 
-    <input type="text" id="message" placeholder="Talk to Lakshmi...">
-    <button onclick="sendMessage()">Send</button>
+  {% if lakshmi_comment %}
+  <div class="result">
+    <h2>💬 Lakshmi says:</h2>
+    <p>{{ lakshmi_comment }}</p>
   </div>
+  {% endif %}
 
-  <hr><br>
-  <h2>📊 Upload Strategy File</h2>
-  <form action="/analyze" method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" accept=".csv" required>
+  {% if analysis %}
+  <div class="result">
+    <h3 class="section-title">📈 Trading Summary</h3>
+    <ul>
+      {% for row in analysis %}
+      <li><strong>{{ row.Stock }}</strong>: ₹{{ row.Profit }}</li>
+      {% endfor %}
+    </ul>
+    <p><strong>Total Profit:</strong> ₹{{ total_profit }}</p>
+  </div>
+  {% endif %}
+
+  <form action="/analyze" method="post" enctype="multipart/form-data">
+    <p style="font-weight: 600; margin-top: 20px;">Upload your trading CSV file:</p>
+    <input type="file" name="file" required>
     <button type="submit">Analyze</button>
   </form>
 
-  {% if analysis %}
-    <div style="margin-top:20px; background:#1a1a2f; padding:15px; border-radius:8px;">
-      <h3>Results:</h3>
-      <ul>
-        {% for row in analysis %}
-          <li>{{ row['Stock'] }}: ₹{{ row['Profit'] }} profit</li>
-        {% endfor %}
-      </ul>
-      <p><strong>Total Profit:</strong> ₹{{ total_profit }}</p>
-      <p><strong>Lakshmi says:</strong> {{ lakshmi_comment }}</p>
-    </div>
-  {% endif %}
-
-  <script>
-    function sendMessage() {
-      const msg = document.getElementById('message').value;
-      const mood = document.getElementById('mood').value;
-      if (!msg) return;
-
-      const chatArea = document.getElementById('chat-area');
-      chatArea.innerHTML += `<div class='chat-bubble user'>You: ${msg}</div>`;
-      document.getElementById('message').value = '';
-
-      fetch('/chat', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: `message=${encodeURIComponent(msg)}&mood=${mood}`
-      })
-      .then(res => res.json())
-      .then(data => {
-        chatArea.innerHTML += `<div class='chat-bubble lakshmi'>Lakshmi: ${data.reply}</div>`;
-        chatArea.scrollTop = chatArea.scrollHeight;
-      });
-    }
-  </script>
 </body>
-</html
+</html>
