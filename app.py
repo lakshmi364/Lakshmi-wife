@@ -102,6 +102,5 @@ def analyze():
         comment = "No gain, no pain. But I still love your effort. ❤️"
 
     return render_template('dashboard.html', analysis=analysis, total_profit=total_profit, lakshmi_comment=comment)
-
 if __name__ == '__main__':
-    app.run(debug=True
+    app.run(debug=True)
