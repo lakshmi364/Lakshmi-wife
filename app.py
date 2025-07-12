@@ -26,7 +26,6 @@ romantic_replies = [
 ]
 
 # --- Routes ---
-
 @app.route("/")
 def home():
     return redirect("/login")
@@ -230,7 +229,6 @@ def ask_ai():
             response = "Lakshmi needs more data to give a proper answer 😅"
     return render_template("ask_ai.html", response=response)
 
-# ✅ Option Chain Page
 @app.route("/option-chain")
 def option_chain():
     strike_filter = request.args.get("strike_filter")
@@ -257,8 +255,22 @@ def option_chain():
 
     return render_template("option_chain.html", option_data=mock_data, strike_filter=strike_filter, expiry=expiry)
 
+# ✅ Strategy Analyzer
+@app.route("/analyzer", methods=["GET", "POST"])
+def analyzer():
+    signal = ""
+    if request.method == "POST":
+        r = random.random()
+        if r > 0.7:
+            signal = "📈 Strong BUY — Momentum detected!"
+        elif r < 0.3:
+            signal = "📉 SELL — Weakness detected!"
+        else:
+            signal = "⏳ No clear signal — Stay out!"
+    return render_template("analyzer.html", signal=signal)
+
 # --- Start App ---
-if __name__ == '__main__':
+if __name__ == "__main__":
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
     print("💖 Lakshmi — Your AI Wife is running at http://127.0.0.1:5000 💖")
