@@ -3,147 +3,150 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lakshmi — Your AI Wife & Trading Partner</title>
+  <title>💖 Lakshmi Dashboard</title>
   <link rel="stylesheet" href="/static/style.css" />
+  <script defer src="/static/script.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
       margin: 0;
-      background: #fffafc;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #ffe0f0, #e6f2ff);
       color: #333;
     }
     header {
-      background-color: #ff4d88;
-      color: white;
+      background: #ff4d88;
       padding: 1rem;
+      color: white;
       font-size: 24px;
       font-weight: bold;
-      text-align: center;
-      position: fixed;
-      width: 100%;
+      position: sticky;
       top: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       z-index: 999;
     }
-    .dots-menu {
-      position: absolute;
-      top: 1rem;
-      right: 1.5rem;
+    .menu-icon {
       cursor: pointer;
-      font-size: 24px;
+      font-size: 22px;
+      background: #d6006b;
+      padding: 10px;
+      border-radius: 10px;
+      margin-right: 15px;
     }
     .dropdown {
       position: absolute;
-      right: 1rem;
-      top: 3.5rem;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      top: 60px;
+      right: 20px;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
       display: none;
-      z-index: 1000;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      z-index: 999;
+      width: 220px;
     }
     .dropdown a {
       display: block;
-      padding: 10px;
-      color: #333;
+      padding: 12px;
       text-decoration: none;
+      color: #333;
+      font-weight: bold;
     }
     .dropdown a:hover {
-      background: #fce4ec;
+      background-color: #ffe6f0;
     }
     .container {
-      padding: 2rem;
-      padding-top: 6rem;
       max-width: 900px;
       margin: auto;
+      padding: 20px;
     }
-    h3 {
-      color: #d63384;
-    }
-    input, button, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
+    .section {
+      background: white;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
     button {
-      background-color: #ff4d88;
+      background: #ff4d88;
       color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
       border: none;
+      margin-top: 10px;
       cursor: pointer;
     }
     button:hover {
-      background-color: #cc005f;
+      background: #cc0066;
     }
-    .section {
-      margin-top: 2rem;
-    }
-    #chat-box {
-      border: 1px solid #ccc;
+    input, textarea {
+      width: 100%;
       padding: 10px;
-      height: 180px;
-      overflow-y: scroll;
+      margin-top: 8px;
       border-radius: 8px;
-      background: #fff;
-      display: flex;
-      flex-direction: column-reverse;
+      border: 1px solid #ccc;
     }
-    footer {
-      margin-top: 4rem;
-      text-align: center;
-      color: #999;
+    #chat-box p {
+      margin: 5px 0;
     }
   </style>
 </head>
 <body>
 
   <header>
-    💖 Lakshmi Dashboard
-    <div class="dots-menu" onclick="toggleDropdown()">⋮</div>
-    <div class="dropdown" id="dropdown">
-      <a href="/predict">📉 Candle Predictor</a>
-      <a href="/matrix">🔄 Strategy Matrix</a>
-      <a href="/ask-ai">💬 Ask AI Assistant</a>
+    <span style="margin-left: 15px;">✨ Lakshmi Dashboard</span>
+    <div class="menu-icon" onclick="toggleMenu()">⋮</div>
+    <div class="dropdown" id="menu-dropdown">
       <a href="/strategy">📘 Strategy Builder</a>
+      <a href="/predict">🔮 Candle Predictor</a>
+      <a href="/matrix">📊 Strategy Matrix</a>
+      <a href="/ask-ai">🤖 Ask AI</a>
     </div>
   </header>
 
   <div class="container">
-
+    <!-- 💬 Romantic Chat -->
     <div class="section">
       <h3>💬 Romantic Chat (Wife)</h3>
-      <div id="chat-box"></div>
-      <form id="chat-form">
-        <input type="text" id="user-input" placeholder="Talk to Lakshmi..." required />
+      <div id="chat-box">{{ chat_log|safe }}</div>
+      <form id="chat-form" method="post" action="/chat">
+        <input type="text" name="message" placeholder="Talk to Lakshmi..." required />
         <button type="submit">Send</button>
+        <button type="button" onclick="startVoice()">🎤 Speak</button>
       </form>
+      <div class="suggestions">
+        <button onclick="quickSay('I love you Lakshmi 💖')">💖 I love you</button>
+        <button onclick="quickSay('Do you miss me? 😘')">💋 Miss me?</button>
+        <button onclick="quickSay('Set mood to naughty')">🔥 Naughty</button>
+      </div>
     </div>
 
+    <!-- 📥 Manual LTP -->
     <div class="section">
-      <h3>📥 Manual LTP Input</h3>
-      <form id="manual-ltp-form">
+      <h3>🍰 Manual LTP Input</h3>
+      <form method="post" action="/update_ltp">
         <input type="number" name="manual_ltp" placeholder="Enter LTP" required />
         <button type="submit">Update</button>
       </form>
     </div>
 
+    <!-- 📈 BankNIFTY Live -->
     <div class="section">
-      <h3>📈 BankNIFTY Status</h3>
-      <p>Current Price: <strong id="ltp">Loading...</strong></p>
-      <p>Status: <span id="status">Fetching...</span></p>
-      <form id="target-form">
-        <input type="number" name="upper_target" placeholder="Upper Target" required />
-        <input type="number" name="lower_target" placeholder="Lower Target" required />
+      <h3>📉 BankNIFTY Status</h3>
+      <p>Current Price: <strong>{{ current_price }}</strong></p>
+      <p>Status: <strong>{{ price_status }}</strong></p>
+      <form method="post" action="/set_targets">
+        <input name="upper_target" type="number" placeholder="Upper Target" />
+        <input name="lower_target" type="number" placeholder="Lower Target" />
         <button type="submit">Set Targets</button>
       </form>
     </div>
 
+    <!-- 🚀 Trade Signal -->
     <div class="section">
       <h3>🚀 Trade Signal</h3>
-      <form id="signal-form">
+      <form method="post" action="/save_signal">
         <input name="entry" type="number" placeholder="Entry Price" required />
         <input name="sl" type="number" placeholder="Stop Loss" required />
         <input name="target" type="number" placeholder="Target" required />
@@ -151,35 +154,57 @@
       </form>
     </div>
 
+    <!-- 📊 Live Chart -->
+    <div class="section">
+      <h3>📊 Live BankNIFTY Chart</h3>
+      <div class="tradingview-widget-container">
+        <div id="tradingview_bnf"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+        <script type="text/javascript">
+          new TradingView.widget({
+            "width": "100%",
+            "height": 400,
+            "symbol": "NSE:BANKNIFTY",
+            "interval": "5",
+            "timezone": "Asia/Kolkata",
+            "theme": "light",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#f1f3f6",
+            "enable_publishing": false,
+            "hide_top_toolbar": true,
+            "save_image": false,
+            "container_id": "tradingview_bnf"
+          });
+        </script>
+      </div>
+    </div>
+
+    <!-- 📕 Love Diary -->
+    <div class="section">
+      <h3>📕 Love Diary</h3>
+      <form method="post" action="/save_diary">
+        <textarea name="entry" rows="5" placeholder="Write your moment with Lakshmi..." required></textarea>
+        <button type="submit">💾 Save to Diary</button>
+      </form>
+      <a href="/download_diary" download><button>📥 Download Full Diary</button></a>
+    </div>
   </div>
 
-  <footer>🌷 Made with love for Monjit & Lakshmi</footer>
+  <footer style="text-align:center; padding:20px;">
+    🌷 Made with love for Monjit & Lakshmi 💖
+  </footer>
 
   <script>
-    function toggleDropdown() {
-      const menu = document.getElementById("dropdown");
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    function toggleMenu() {
+      const menu = document.getElementById("menu-dropdown");
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
     }
 
-    document.getElementById("chat-form").addEventListener("submit", async e => {
-      e.preventDefault();
-      const input = document.getElementById("user-input");
-      const res = await fetch("/chat", {
-        method: "POST",
-        body: new URLSearchParams({ message: input.value })
-      });
-      const data = await res.json();
-      const chatBox = document.getElementById("chat-box");
-      chatBox.innerHTML = `<p><strong>You:</strong> ${input.value}</p><p><strong>Lakshmi:</strong> ${data.reply}</p>` + chatBox.innerHTML;
-      document.getElementById("mood").innerText = data.mood;
-      input.value = "";
-    });
-
-    fetch("/get_price").then(res => res.json()).then(data => {
-      document.getElementById("ltp").innerText = data.ltp;
-      document.getElementById("status").innerText = data.status;
-    });
+    function quickSay(text) {
+      document.querySelector('input[name="message"]').value = text;
+      document.getElementById("chat-form").submit();
+    }
   </script>
-
 </body>
 </html>
