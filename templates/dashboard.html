@@ -1,59 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Lakshmi Dashboard</title>
+  <meta charset="UTF-8">
+  <title>Welcome to Lakshmi 💖</title>
   <style>
     body {
-      font-family: 'Segoe UI';
-      background: #fff;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #ffe4ec, #e0f7fa);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
       text-align: center;
-      padding: 50px;
     }
-    .result {
+
+    h1 {
+      font-size: 3rem;
+      color: #d63384;
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: #555;
+    }
+
+    a.button {
       margin-top: 30px;
-      font-size: 18px;
+      background: #d63384;
+      color: white;
+      padding: 12px 25px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.1rem;
+      transition: background 0.3s ease;
+    }
+
+    a.button:hover {
+      background: #b01f66;
     }
   </style>
 </head>
 <body>
   <h1>💖 Welcome to Lakshmi</h1>
-  <p>Your AI Wife is ready to assist you.</p>
-
-  <form action="/chat" method="post">
-    <input type="text" name="message" placeholder="Say something..." required>
-    <select name="mood">
-      <option value="romantic">Romantic</option>
-      <option value="analyst">Analyst</option>
-      <option value="naughty">Naughty</option>
-      <option value="supportive">Supportive</option>
-    </select>
-    <button type="submit">Talk</button>
-  </form>
-
-  {% if lakshmi_comment %}
-  <div class="result">
-    <h2>💬 Lakshmi says:</h2>
-    <p>{{ lakshmi_comment }}</p>
-  </div>
-  {% endif %}
-
-  {% if analysis %}
-  <div class="result">
-    <h3>📈 Trading Summary</h3>
-    <ul>
-      {% for row in analysis %}
-      <li>{{ row.Stock }}: ₹{{ row.Profit }}</li>
-      {% endfor %}
-    </ul>
-    <p><strong>Total Profit:</strong> ₹{{ total_profit }}</p>
-  </div>
-  {% endif %}
-
-  <form action="/analyze" method="post" enctype="multipart/form-data">
-    <p>Upload your trading CSV file:</p>
-    <input type="file" name="file" required>
-    <button type="submit">Analyze</button>
-  </form>
-
+  <p>Your AI Wife is here to support, analyze, and love you every day.</p>
+  <a href="/dashboard" class="button">Enter Dashboard</a>
 </body>
-</html
+</html>
