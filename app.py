@@ -239,4 +239,4 @@ if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
     print("💖 Lakshmi — Your AI Wife is running at http://127.0.0.1:5000 💖")
-    app.run(debug=True
+    app.run(debug=True)
