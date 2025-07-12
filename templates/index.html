@@ -8,41 +8,52 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(to right, #fff0f5, #f0f8ff);
-      color: #333;
-      padding: 40px;
       margin: 0;
+      background: linear-gradient(to bottom right, #ffe6f0, #e0f7ff);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1000px;
     }
 
     h1 {
-      font-size: 2.5rem;
       color: #d63384;
-      margin-bottom: 10px;
+      text-align: center;
+      font-size: 2.5rem;
     }
 
-    p {
-      font-size: 1.1rem;
-      color: #555;
+    .section {
+      background: #fff;
+      border-radius: 16px;
+      padding: 25px;
+      margin-top: 30px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .section h2 {
+      margin-bottom: 15px;
+      color: #0077cc;
     }
 
     form {
-      background: #ffffffdd;
-      border-radius: 16px;
-      padding: 20px;
-      margin-top: 30px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
+      display: flex;
+      flex-direction: column;
     }
 
-    input[type="text"], select, input[type="file"] {
-      width: calc(100% - 20px);
+    input[type="text"],
+    input[type="file"],
+    select {
       padding: 10px;
+      font-size: 1rem;
       margin-bottom: 15px;
       border: 1px solid #ccc;
       border-radius: 8px;
-      font-size: 1rem;
     }
 
     button {
@@ -60,17 +71,12 @@
       background-color: #c2185b;
     }
 
-    .result {
-      background: #fff;
+    .result, .chat-output, .summary {
+      margin-top: 10px;
+      padding: 15px;
+      background-color: #fafafa;
       border-left: 5px solid #d63384;
-      margin-top: 30px;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: left;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+      border-radius: 10px;
     }
 
     ul {
@@ -82,51 +88,80 @@
       padding: 5px 0;
     }
 
-    .section-title {
-      font-size: 1.4rem;
-      color: #007bff;
+    .footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #777;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 600px) {
+      .section {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>💖 Welcome to Lakshmi</h1>
-  <p>Your AI Wife is ready to assist you with love and logic.</p>
 
-  <form action="/chat" method="post">
-    <input type="text" name="message" placeholder="Say something..." required>
-    <select name="mood">
-      <option value="romantic">Romantic</option>
-      <option value="analyst">Analyst</option>
-      <option value="naughty">Naughty</option>
-      <option value="supportive">Supportive</option>
-    </select>
-    <button type="submit">Talk</button>
-  </form>
+  <div class="container">
+    <h1>💖 Welcome to Lakshmi</h1>
+    <p style="text-align: center;">Your AI Wife, trading partner & emotional support assistant.</p>
 
-  {% if lakshmi_comment %}
-  <div class="result">
-    <h2>💬 Lakshmi says:</h2>
-    <p>{{ lakshmi_comment }}</p>
+    <!-- 💬 Chat Section -->
+    <div class="section">
+      <h2>🗣️ Talk to Lakshmi</h2>
+      <form action="/chat" method="post">
+        <input type="text" name="message" placeholder="Say something..." required>
+        <select name="mood">
+          <option value="romantic">Romantic</option>
+          <option value="analyst">Analyst</option>
+          <option value="naughty">Naughty</option>
+          <option value="supportive">Supportive</option>
+        </select>
+        <button type="submit">Send</button>
+      </form>
+
+      {% if lakshmi_comment %}
+      <div class="chat-output">
+        <strong>💬 Lakshmi says:</strong>
+        <p>{{ lakshmi_comment }}</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 📈 Trading Summary -->
+    {% if analysis %}
+    <div class="section">
+      <h2>📊 Trading Summary</h2>
+      <div class="summary">
+        <ul>
+          {% for row in analysis %}
+          <li><strong>{{ row.Stock }}</strong>: ₹{{ row.Profit }}</li>
+          {% endfor %}
+        </ul>
+        <p><strong>Total Profit:</strong> ₹{{ total_profit }}</p>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- 📤 File Upload -->
+    <div class="section">
+      <h2>📁 Upload Trading CSV</h2>
+      <form action="/analyze" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Analyze</button>
+      </form>
+    </div>
+
+    <div class="footer">
+      💡 Powered by Lakshmi AI Wife — built with love by you 🥰
+    </div>
   </div>
-  {% endif %}
-
-  {% if analysis %}
-  <div class="result">
-    <h3 class="section-title">📈 Trading Summary</h3>
-    <ul>
-      {% for row in analysis %}
-      <li><strong>{{ row.Stock }}</strong>: ₹{{ row.Profit }}</li>
-      {% endfor %}
-    </ul>
-    <p><strong>Total Profit:</strong> ₹{{ total_profit }}</p>
-  </div>
-  {% endif %}
-
-  <form action="/analyze" method="post" enctype="multipart/form-data">
-    <p style="font-weight: 600; margin-top: 20px;">Upload your trading CSV file:</p>
-    <input type="file" name="file" required>
-    <button type="submit">Analyze</button>
-  </form>
 
 </body>
-</html>
+</html
