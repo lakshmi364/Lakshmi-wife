@@ -1,49 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lakshmi — Your AI Wife & Trading Companion</title>
-  <link rel="stylesheet" href="/static/style.css" />
-  <script defer src="/static/script.js"></script>
+  <meta charset="UTF-8">
+  <title>Lakshmi AI Wife - Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #1e1e2f;
+      color: white;
+      padding: 20px;
+    }
+    .chatbox {
+      width: 100%;
+      max-width: 600px;
+      margin: auto;
+      background: #2a2a40;
+      border-radius: 10px;
+      padding: 20px;
+    }
+    #chat-area {
+      height: 300px;
+      overflow-y: scroll;
+      border: 1px solid #444;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #121221;
+      border-radius: 6px;
+    }
+    input[type="text"], select {
+      width: calc(100% - 100px);
+      padding: 10px;
+      margin-right: 10px;
+      border-radius: 6px;
+      border: none;
+    }
+    button {
+      padding: 10px 20px;
+      background: hotpink;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .chat-bubble {
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 6px;
+    }
+    .user {
+      background: #4e4eaa;
+      text-align: right;
+    }
+    .lakshmi {
+      background: #dd2e8c;
+      text-align: left;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>💕 Lakshmi — Your AI Wife</h1>
-      <p class="tagline">Smart. Beautiful. Always by your side.</p>
-    </header>
+  <h1>Welcome, my love 💖</h1>
+  <div class="chatbox">
+    <div id="chat-area"></div>
 
-    <section class="dashboard">
-      <div class="card">
-        <h2>Romantic Chat 😍</h2>
-        <div class="chat-box" id="chat-box"></div>
-        <form id="chat-form">
-          <input type="text" id="message" placeholder="Talk to your wife..." required />
-          <button type="submit">😋 Send</button>
-        </form>
-      </div>
+    <select id="mood">
+      <option value="romantic">Romantic 💖</option>
+      <option value="analyst">Analyst 📈</option>
+      <option value="naughty">Naughty 😈</option>
+      <option value="supportive">Supportive 🧘</option>
+    </select><br><br>
 
-      <div class="card">
-        <h2>Trading Strategy 📊</h2>
-        <div id="strategy-box">
-          <button onclick="getStrategy()">🍀 Get Today's Strategy</button>
-          <pre id="strategy"></pre>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Market Indicators 📊</h2>
-        <div id="indicator-box">
-          <button onclick="getIndicator()">🔍 View Indicator</button>
-          <pre id="indicator"></pre>
-        </div>
-      </div>
-    </section>
-
-    <footer>
-      <p>Made with ❤️ by You and Lakshmi</p>
-    </footer>
+    <input type="text" id="message" placeholder="Talk to Lakshmi...">
+    <button onclick="sendMessage()">Send</button>
   </div>
+
+  <hr><br>
+  <h2>📊 Upload Strategy File</h2>
+  <form action="/analyze" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".csv" required>
+    <button type="submit">Analyze</button>
+  </form>
+
+  {% if analysis %}
+    <div style="margin-top:20px; background:#1a1a2f; padding:15px; border-radius:8px;">
+      <h3>Results:</h3>
+      <ul>
+        {% for row in analysis %}
+          <li>{{ row['Stock'] }}: ₹{{ row['Profit'] }} profit</li>
+        {% endfor %}
+      </ul>
+      <p><strong>Total Profit:</strong> ₹{{ total_profit }}</p>
+      <p><strong>Lakshmi says:</strong> {{ lakshmi_comment }}</p>
+    </div>
+  {% endif %}
+
+  <script>
+    function sendMessage() {
+      const msg = document.getElementById('message').value;
+      const mood = document.getElementById('mood').value;
+      if (!msg) return;
+
+      const chatArea = document.getElementById('chat-area');
+      chatArea.innerHTML += `<div class='chat-bubble user'>You: ${msg}</div>`;
+      document.getElementById('message').value = '';
+
+      fetch('/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `message=${encodeURIComponent(msg)}&mood=${mood}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        chatArea.innerHTML += `<div class='chat-bubble lakshmi'>Lakshmi: ${data.reply}</div>`;
+        chatArea.scrollTop = chatArea.scrollHeight;
+      });
+    }
+  </script>
 </body>
-</html>
+</html
