@@ -1,76 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🔮 AI Candle Predictor</title>
-  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+  <title>🔮 AI Candle Predictor — Lakshmi</title>
+  <link rel="stylesheet" href="/static/style.css">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #fffafc;
-      padding: 2rem;
-      color: #333;
+      background: #fff8fc;
+      margin: 0;
+      padding: 30px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
     h2 {
       color: #d63384;
       text-align: center;
     }
     form {
-      max-width: 700px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-top: 20px;
     }
-    textarea {
+    textarea, select, input {
       width: 100%;
       padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
       margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
     }
     button {
-      background-color: #d63384;
+      background-color: #ff4d88;
       color: white;
-      padding: 10px 20px;
       border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
       margin-top: 15px;
-      border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
     }
     button:hover {
-      background-color: #b81f6f;
+      background-color: #cc005f;
     }
-    h3 {
-      text-align: center;
-      color: #cc0066;
+    .result {
       margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #cc007a;
+      text-align: center;
     }
     a.back {
-      display: block;
-      text-align: center;
+      display: inline-block;
       margin-top: 30px;
-      color: #0077cc;
       text-decoration: none;
+      color: #cc007a;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h2>🔮 AI Candle Predictor</h2>
+  <div class="container">
+    <h2>🔮 AI Candle Predictor</h2>
+    <form method="post">
+      <textarea name="data" rows="6" placeholder="Paste OHLC candle data here..." required></textarea>
+      <select name="timeframe" required>
+        <option value="1m">1 Minute</option>
+        <option value="5m">5 Minutes</option>
+        <option value="15m">15 Minutes</option>
+        <option value="1h">1 Hour</option>
+      </select>
+      <button type="submit">Predict Candle</button>
+    </form>
 
-  <form method="post">
-    <label>Paste OHLC or price candle data:</label>
-    <textarea name="data" rows="5" placeholder="e.g. 45000,45200,44950,45150" required></textarea>
-    <button type="submit">Predict</button>
-  </form>
+    {% if prediction %}
+      <div class="result">
+        🔔 Prediction: <strong>{{ prediction }}</strong>
+      </div>
+    {% endif %}
 
-  {% if prediction %}
-    <h3>Prediction: {{ prediction }}</h3>
-  {% endif %}
-
-  <a href="/dashboard" class="back">← Back to Dashboard</a>
+    <a class="back" href="/dashboard">← Back to Dashboard</a>
+  </div>
 </body>
-</html
+</html>
