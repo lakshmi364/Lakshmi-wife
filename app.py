@@ -13,6 +13,7 @@ targets = {"upper": 0, "lower": 0}
 signal = {"entry": 0, "sl": 0, "target": 0}
 price_log = []
 chat_log = []
+diary_entries = []
 strategies = []
 current_mood = "Romantic 💞"
 
@@ -40,7 +41,7 @@ def login():
 
 @app.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html", mood=current_mood)
+    return render_template("index.html", mood=current_mood)
 
 @app.route("/strategy")
 def strategy_page():
@@ -71,7 +72,7 @@ def add_strategy():
         writer.writerow(data)
     return redirect("/strategy")
 
-@app.route("/get_strategies", methods=["GET"])
+@app.route("/get_strategies")
 def get_strategies():
     strategies_texts = []
     if os.path.exists("strategies.csv"):
@@ -193,44 +194,47 @@ def voice_list():
 def serve_voice(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-@app.route("/predict", methods=["GET", "POST"])
-def predict():
+# 🔮 AI Candle Predictor Page
+@app.route("/candle", methods=["GET", "POST"])
+def candle_predictor():
     prediction = None
     if request.method == "POST":
-        data = request.form.get("data", "")
-        if data:
-            lines = data.strip().split("\n")
-            bullish = sum(1 for line in lines if "green" in line.lower() or "bull" in line.lower())
-            bearish = sum(1 for line in lines if "red" in line.lower() or "bear" in line.lower())
-            prediction = "Bullish 📈" if bullish >= bearish else "Bearish 📉"
+        data = request.form["data"]
+        # Dummy logic
+        prediction = "Bullish 📈" if "45" in data else "Bearish 📉"
     return render_template("candle_predictor.html", prediction=prediction)
 
+# 📊 Strategy Matrix Page
 @app.route("/matrix", methods=["GET", "POST"])
 def strategy_matrix():
     signals = []
     if request.method == "POST":
-        raw_data = request.form.get("data", "")
-        if raw_data:
-            lines = raw_data.strip().split("\n")
-            for i, line in enumerate(lines):
-                if "buy" in line.lower():
-                    signals.append(f"Strategy {i+1}: Buy ✅")
-                elif "sell" in line.lower():
-                    signals.append(f"Strategy {i+1}: Sell ❌")
-                else:
-                    signals.append(f"Strategy {i+1}: Hold ⏸️")
+        raw_data = request.form["data"]
+        lines = raw_data.strip().splitlines()
+        for line in lines:
+            if "buy" in line.lower():
+                signals.append(f"📈 Buy signal from: {line}")
+            elif "sell" in line.lower():
+                signals.append(f"📉 Sell signal from: {line}")
+            else:
+                signals.append(f"⚠️ Neutral/No signal: {line}")
     return render_template("strategy_matrix.html", signals=signals)
 
+# 🤖 Ask AI Page
 @app.route("/ask-ai", methods=["GET", "POST"])
 def ask_ai():
-    answer = None
+    response = None
     if request.method == "POST":
-        question = request.form.get("question", "")
-        if question:
-            answer = f"AI Insight: Based on your question, '{question}', a cautious approach is advised. 📊"
-    return render_template("ask_ai.html", answer=answer)
+        question = request.form["question"]
+        if "psychology" in question.lower():
+            response = "Successful trading requires emotional discipline and patience. 💡"
+        elif "trend" in question.lower():
+            response = "Current trend seems bullish based on past few candles. 📈"
+        else:
+            response = "Lakshmi needs more data to give a proper answer 😅"
+    return render_template("ask_ai.html", response=response)
 
-# --- Run the App ---
+# --- Start the App ---
 if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
