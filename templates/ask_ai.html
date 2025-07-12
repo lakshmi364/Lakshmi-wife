@@ -1,84 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>🤖 Ask Lakshmi AI</title>
-  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom right, #fce4ec, #e6f7ff);
-      padding: 2rem;
-      color: #333;
+      background: #fff0f5;
+      margin: 0;
+      padding: 20px;
     }
-    h2 {
-      color: #d63384;
-      text-align: center;
-    }
-    form {
+    .container {
       max-width: 600px;
-      margin: auto;
       background: white;
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin: auto;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #cc007a;
     }
     textarea {
       width: 100%;
-      padding: 12px;
-      margin-top: 10px;
+      height: 120px;
+      padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      font-size: 16px;
+      resize: vertical;
     }
     button {
       background-color: #ff4d88;
       color: white;
       padding: 10px 20px;
       border: none;
-      margin-top: 15px;
       border-radius: 8px;
-      font-size: 16px;
       cursor: pointer;
+      margin-top: 10px;
+      font-size: 16px;
     }
     button:hover {
-      background-color: #d6336c;
+      background-color: #cc005f;
     }
-    #response {
-      max-width: 600px;
-      margin: 20px auto;
-      background: #fff0f5;
+    .result {
+      margin-top: 20px;
+      font-size: 17px;
+      background: #f9f9f9;
+      border-left: 5px solid #ff4d88;
       padding: 15px;
       border-radius: 10px;
-      font-style: italic;
-      color: #444;
     }
     a.back {
-      display: block;
-      text-align: center;
+      display: inline-block;
       margin-top: 20px;
-      color: #0066cc;
       text-decoration: none;
+      color: #ff4d88;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h2>🤖 Ask Lakshmi AI</h2>
+  <div class="container">
+    <h2>🤖 Ask Lakshmi AI</h2>
+    <form method="POST">
+      <textarea name="question" placeholder="Ask me anything about trading, life, markets, or love..." required></textarea>
+      <button type="submit">💬 Get Insight</button>
+    </form>
 
-  <form method="POST" action="/ask-ai">
-    <label>Ask anything about markets, strategy, psychology, or life:</label><br>
-    <textarea name="question" rows="5" placeholder="e.g., How to build a good breakout strategy?" required></textarea>
-    <button type="submit">Get Insight</button>
-  </form>
+    {% if response %}
+      <div class="result">
+        {{ response }}
+      </div>
+    {% endif %}
 
-  {% if reply %}
-    <div id="response">
-      <strong>Lakshmi's Insight:</strong><br>
-      {{ reply }}
-    </div>
-  {% endif %}
-
-  <a href="/dashboard" class="back">← Back to Dashboard</a>
+    <a class="back" href="/dashboard">← Back to Dashboard</a>
+  </div>
 </body>
-</html
+</html>
