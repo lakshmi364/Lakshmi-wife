@@ -194,17 +194,14 @@ def voice_list():
 def serve_voice(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-# 🔮 AI Candle Predictor Page
 @app.route("/candle", methods=["GET", "POST"])
 def candle_predictor():
     prediction = None
     if request.method == "POST":
         data = request.form["data"]
-        # Dummy logic
         prediction = "Bullish 📈" if "45" in data else "Bearish 📉"
     return render_template("candle_predictor.html", prediction=prediction)
 
-# 📊 Strategy Matrix Page
 @app.route("/matrix", methods=["GET", "POST"])
 def strategy_matrix():
     signals = []
@@ -220,7 +217,6 @@ def strategy_matrix():
                 signals.append(f"⚠️ Neutral/No signal: {line}")
     return render_template("strategy_matrix.html", signals=signals)
 
-# 🤖 Ask AI Page
 @app.route("/ask-ai", methods=["GET", "POST"])
 def ask_ai():
     response = None
@@ -234,7 +230,34 @@ def ask_ai():
             response = "Lakshmi needs more data to give a proper answer 😅"
     return render_template("ask_ai.html", response=response)
 
-# --- Start the App ---
+# ✅ Option Chain Page
+@app.route("/option-chain")
+def option_chain():
+    strike_filter = request.args.get("strike_filter")
+    expiry = request.args.get("expiry")
+
+    mock_data = [
+        {"strike": 44000, "call_oi": 1200, "call_change": 150, "put_oi": 900, "put_change": -100},
+        {"strike": 44200, "call_oi": 980, "call_change": -20, "put_oi": 1100, "put_change": 80},
+        {"strike": 44400, "call_oi": 1890, "call_change": 60, "put_oi": 2300, "put_change": 210},
+        {"strike": 44600, "call_oi": 760, "call_change": 40, "put_oi": 1500, "put_change": 310},
+    ]
+
+    if strike_filter:
+        try:
+            strike_filter = int(strike_filter)
+            mock_data = [row for row in mock_data if abs(row["strike"] - strike_filter) <= 200]
+        except:
+            pass
+
+    max_call_oi = max([row["call_oi"] for row in mock_data])
+    max_put_oi = max([row["put_oi"] for row in mock_data])
+    for row in mock_data:
+        row["max_oi"] = row["call_oi"] == max_call_oi or row["put_oi"] == max_put_oi
+
+    return render_template("option_chain.html", option_data=mock_data, strike_filter=strike_filter, expiry=expiry)
+
+# --- Start App ---
 if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
