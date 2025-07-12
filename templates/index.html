@@ -1,161 +1,185 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lakshmi Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lakshmi — Your AI Wife & Trading Partner</title>
+  <link rel="stylesheet" href="/static/style.css" />
   <style>
     body {
-      margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom right, #ffe0f0, #e6f2ff);
+      margin: 0;
+      background: #fffafc;
       color: #333;
     }
     header {
-      background: #ff4d88;
-      padding: 1rem;
+      background-color: #ff4d88;
       color: white;
-      text-align: center;
+      padding: 1rem;
       font-size: 24px;
       font-weight: bold;
-      position: relative;
+      text-align: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 999;
     }
-    .menu {
+    .dots-menu {
       position: absolute;
       top: 1rem;
-      right: 1rem;
-    }
-    .menu-button {
-      background: transparent;
-      border: none;
-      font-size: 24px;
+      right: 1.5rem;
       cursor: pointer;
-      color: white;
+      font-size: 24px;
     }
     .dropdown {
-      display: none;
       position: absolute;
-      right: 0;
+      right: 1rem;
+      top: 3.5rem;
       background: white;
-      color: black;
+      border: 1px solid #ccc;
       border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      display: none;
       z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     .dropdown a {
       display: block;
-      padding: 10px 20px;
-      text-decoration: none;
+      padding: 10px;
       color: #333;
+      text-decoration: none;
     }
     .dropdown a:hover {
-      background-color: #f2f2f2;
+      background: #fce4ec;
     }
     .container {
       padding: 2rem;
+      padding-top: 6rem;
       max-width: 900px;
       margin: auto;
-      background: white;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      border-radius: 16px;
-      margin-top: 2rem;
     }
-    h2 {
+    h3 {
       color: #d63384;
     }
-    input[type="text"], input[type="file"], input[type="number"], select, textarea {
-      padding: 10px;
-      margin: 5px 0;
+    input, button, textarea {
       width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      margin-bottom: 15px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      font-size: 16px;
     }
     button {
-      padding: 10px 20px;
       background-color: #ff4d88;
       color: white;
       border: none;
-      border-radius: 8px;
       cursor: pointer;
-      font-size: 16px;
-      margin-top: 10px;
     }
     button:hover {
-      background-color: #e6005c;
+      background-color: #cc005f;
     }
-    .result, .section {
+    .section {
       margin-top: 2rem;
+    }
+    #chat-box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 180px;
+      overflow-y: scroll;
+      border-radius: 8px;
+      background: #fff;
+      display: flex;
+      flex-direction: column-reverse;
+    }
+    footer {
+      margin-top: 4rem;
+      text-align: center;
+      color: #999;
     }
   </style>
 </head>
-<body>  <header>
+<body>
+
+  <header>
     💖 Lakshmi Dashboard
-    <div class="menu">
-      <button class="menu-button" onclick="toggleDropdown()">⋮</button>
-      <div class="dropdown" id="dropdown-menu">
-        <a href="/strategy">📘 Strategy Builder</a>
-        <a href="/candle">🔮 Candle Predictor</a>
-        <a href="/matrix">📊 Strategy Matrix</a>
-        <a href="/askai">🤖 Ask AI</a>
-      </div>
+    <div class="dots-menu" onclick="toggleDropdown()">⋮</div>
+    <div class="dropdown" id="dropdown">
+      <a href="/predict">📉 Candle Predictor</a>
+      <a href="/matrix">🔄 Strategy Matrix</a>
+      <a href="/ask-ai">💬 Ask AI Assistant</a>
+      <a href="/strategy">📘 Strategy Builder</a>
     </div>
-  </header>  <div class="container">
-    <h2>💬 Romantic Chat</h2>
-    <form id="chat-form">
-      <input type="text" id="user-input" placeholder="Talk to Lakshmi..." required>
-      <button type="submit">Send</button>
-    </form>
-    <div id="chat-box" style="margin-top:15px;"></div><h3>📥 Manual LTP Input</h3>
-<form id="manual-ltp-form">
-  <input type="number" name="manual_ltp" placeholder="Enter BankNIFTY Price" required />
-  <button type="submit">Update LTP</button>
-</form>
+  </header>
 
-<h3>📈 Live Target Status</h3>
-<p>Current Price: <strong id="ltp">Loading...</strong></p>
-<p>Status: <span id="status">Fetching...</span></p>
-<form id="target-form">
-  <input type="number" name="upper_target" placeholder="Upper Target" required />
-  <input type="number" name="lower_target" placeholder="Lower Target" required />
-  <button type="submit">Update Targets</button>
-</form>
+  <div class="container">
 
-<h3>🚀 Trade Signal Setup</h3>
-<form id="signal-form">
-  <input type="number" name="entry" placeholder="Entry Price" required />
-  <input type="number" name="sl" placeholder="Stop Loss" required />
-  <input type="number" name="target" placeholder="Target Price" required />
-  <button type="submit">Save Signal</button>
-</form>
+    <div class="section">
+      <h3>💬 Romantic Chat (Wife)</h3>
+      <div id="chat-box"></div>
+      <form id="chat-form">
+        <input type="text" id="user-input" placeholder="Talk to Lakshmi..." required />
+        <button type="submit">Send</button>
+      </form>
+    </div>
 
-<h3>🗂 Download Logs</h3>
-<a href="/download_log"><button type="button">📈 Download Price Log</button></a>
-<a href="/download_chat"><button type="button">💬 Download Chat Log</button></a>
+    <div class="section">
+      <h3>📥 Manual LTP Input</h3>
+      <form id="manual-ltp-form">
+        <input type="number" name="manual_ltp" placeholder="Enter LTP" required />
+        <button type="submit">Update</button>
+      </form>
+    </div>
 
-  </div>  <script>
+    <div class="section">
+      <h3>📈 BankNIFTY Status</h3>
+      <p>Current Price: <strong id="ltp">Loading...</strong></p>
+      <p>Status: <span id="status">Fetching...</span></p>
+      <form id="target-form">
+        <input type="number" name="upper_target" placeholder="Upper Target" required />
+        <input type="number" name="lower_target" placeholder="Lower Target" required />
+        <button type="submit">Set Targets</button>
+      </form>
+    </div>
+
+    <div class="section">
+      <h3>🚀 Trade Signal</h3>
+      <form id="signal-form">
+        <input name="entry" type="number" placeholder="Entry Price" required />
+        <input name="sl" type="number" placeholder="Stop Loss" required />
+        <input name="target" type="number" placeholder="Target" required />
+        <button type="submit">Save Signal</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>🌷 Made with love for Monjit & Lakshmi</footer>
+
+  <script>
     function toggleDropdown() {
-      const menu = document.getElementById("dropdown-menu");
+      const menu = document.getElementById("dropdown");
       menu.style.display = menu.style.display === "block" ? "none" : "block";
     }
 
-    document.addEventListener("click", function(e) {
-      const menu = document.getElementById("dropdown-menu");
-      const button = document.querySelector(".menu-button");
-      if (!button.contains(e.target) && !menu.contains(e.target)) {
-        menu.style.display = "none";
-      }
-    });
-
-    document.getElementById('chat-form').addEventListener('submit', async (e) => {
+    document.getElementById("chat-form").addEventListener("submit", async e => {
       e.preventDefault();
-      const input = document.getElementById('user-input');
-      const res = await fetch('/chat', {
-        method: 'POST',
+      const input = document.getElementById("user-input");
+      const res = await fetch("/chat", {
+        method: "POST",
         body: new URLSearchParams({ message: input.value })
       });
       const data = await res.json();
-      document.getElementById('chat-box').innerHTML += `<p><strong>You:</strong> ${input.value}</p><p><strong>Lakshmi:</strong> ${data.reply}</p>`;
-      input.value = '';
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML = `<p><strong>You:</strong> ${input.value}</p><p><strong>Lakshmi:</strong> ${data.reply}</p>` + chatBox.innerHTML;
+      document.getElementById("mood").innerText = data.mood;
+      input.value = "";
     });
-  </script></body>
+
+    fetch("/get_price").then(res => res.json()).then(data => {
+      document.getElementById("ltp").innerText = data.ltp;
+      document.getElementById("status").innerText = data.status;
+    });
+  </script>
+
+</body>
 </html>
