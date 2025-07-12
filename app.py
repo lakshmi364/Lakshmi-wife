@@ -8,7 +8,8 @@ import os
 from datetime import datetime
 import random
 
-app = Flask(name) app.secret_key = 'your_secret_key'
+app = Flask(name) 
+app.secret_key = 'your_secret_key'
 
 === GPT-STYLE REPLY ENGINE (SIMULATED) ===
 
