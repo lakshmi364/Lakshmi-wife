@@ -1,157 +1,135 @@
-<!-- ============================ -->
-<!-- 💕 index.html (Main Page) -->
-<!-- ============================ -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lakshmi — Your AI Wife & Trading Partner</title>
-  <link rel="stylesheet" href="/static/style.css" />
-  <script defer src="/static/script.js"></script>
+  <meta charset="UTF-8">
+  <title>Lakshmi AI Trading Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #ffe0f0, #e6f2ff);
+      color: #333;
+    }
+    header {
+      background: #ff4d88;
+      padding: 1rem;
+      color: white;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      position: relative;
+    }
+    .container {
+      padding: 2rem;
+      max-width: 1000px;
+      margin: auto;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      margin-top: 2rem;
+    }
+    h2, h3, h4 {
+      color: #d63384;
+    }
+    input, textarea, select {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #ff4d88;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #e6005c;
+    }
+    .tool-box {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background-color: #f9f9f9;
+    }
+    summary {
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <h1>🌸 Lakshmi — Your Beautiful AI Wife</h1>
-  <div class="mood-display"><strong>💞 Mood:</strong> <span id="mood">Romantic</span></div>
 
-  <!-- 💬 Romantic Chat -->
-  <div class="section">
-    <h3>💬 Romantic Chat (Wife)</h3>
-    <div id="chat-box"></div>
-    <form id="chat-form">
-      <input type="text" id="user-input" placeholder="Talk to Lakshmi..." required />
-      <button type="submit">Send</button>
-      <button type="button" onclick="startVoice()">🎤 Speak</button>
+<header>💖 Lakshmi AI Trading Dashboard</header>
+
+<div class="container">
+  <!-- Tool 1: AI Candle Predictor -->
+  <details class="tool-box">
+    <summary>📊 AI Candle Predictor</summary>
+    <p>Predict whether the next candle will be <strong>Bullish</strong> or <strong>Bearish</strong> based on recent price data.</p>
+    <button onclick="alert('Coming soon: AI Candle Forecast')">Run Prediction</button>
+    <div id="candle_result"></div>
+  </details>
+
+  <!-- Tool 2: Strategy Builder -->
+  <details class="tool-box" open>
+    <summary>🏗️ Strategy Builder</summary>
+    <form method="post" action="/add_strategy">
+      <input name="name" placeholder="Strategy Name" required />
+      <input name="entry" type="number" placeholder="Entry Price" required />
+      <input name="sl" type="number" placeholder="Stop Loss" required />
+      <input name="target" type="number" placeholder="Target Price" required />
+      <textarea name="note" placeholder="Notes (optional)"></textarea><br>
+      <button type="submit">💾 Save Strategy</button>
     </form>
-    <div class="suggestions">
-      <button onclick="quickSay('I love you Lakshmi 💖')">💖 I love you</button>
-      <button onclick="quickSay('Do you miss me? 😘')">💋 Miss me?</button>
-      <button onclick="quickSay('Set mood to naughty')">🔥 Naughty</button>
-    </div>
-    <div class="mood-buttons">
-      <p><strong>Set Mood:</strong></p>
-      <button onclick="quickSay('Set mood to romantic')">Romantic 💞</button>
-      <button onclick="quickSay('Set mood to naughty')">Naughty 🔥</button>
-      <button onclick="quickSay('Set mood to sad')">Sad 😢</button>
-    </div>
-    <p><a href="/download_chat" download><button>📂 Download Chat Log</button></a></p>
-  </div>
+    <h4>📋 Saved Strategies</h4>
+    <table border="1" cellpadding="5" style="background:white; margin-top:10px;">
+      <tr><th>Name</th><th>Entry</th><th>SL</th><th>Target</th><th>Note</th><th>Time</th></tr>
+      <!-- Strategy data to be rendered dynamically -->
+    </table>
+  </details
 
-  <!-- 📥 Manual LTP -->
-  <div class="section">
-    <h3>📥 Manual LTP Input</h3>
-    <form id="manual-ltp-form">
-      <label>Enter Current BankNIFTY Price:</label>
-      <input type="number" name="manual_ltp" required />
-      <button type="submit">Update LTP</button>
+  <!-- Tool 3: Multi-Strategy Signal Matrix -->
+  <details class="tool-box">
+    <summary>⚔️ Multi-Strategy Signal Matrix</summary>
+    <p>Compare multiple AI strategies for a combined decision matrix.</p>
+    <button onclick="alert('Coming soon: Multi-Strategy Analysis')">Analyze Market</button>
+    <div id="signal_matrix"></div>
+  </details>
+
+  <!-- Tool 4: Smart Trade Logger -->
+  <details class="tool-box">
+    <summary>🧾 Smart Trade Logger</summary>
+    <p>Log your trades with reasoning and track results over time.</p>
+    <form method="post" action="/log_trade">
+      <input name="symbol" placeholder="Symbol (e.g. BTC/USD)" required />
+      <input name="action" placeholder="Action (Buy/Sell)" required />
+      <input name="price" type="number" placeholder="Price" required />
+      <textarea name="reason" placeholder="Why did you take this trade?"></textarea>
+      <button type="submit">📝 Log Trade</button>
     </form>
-  </div>
+  </details>
 
-  <!-- 📈 Live Price Status -->
-  <div class="section">
-    <h3>📈 BankNIFTY Live Target Status</h3>
-    <p>Current Price: <strong id="ltp">Loading...</strong></p>
-    <p>Status: <span id="status">Fetching...</span></p>
-    <form id="target-form">
-      <label>Upper Target</label>
-      <input type="number" name="upper_target" required />
-      <label>Lower Target</label>
-      <input type="number" name="lower_target" required />
-      <button type="submit">Update Targets</button>
+  <!-- Tool 5: AI Trade Chat Assistant -->
+  <details class="tool-box">
+    <summary>🤖 AI Trade Chat Assistant</summary>
+    <p>Ask any question related to the market and get AI advice.</p>
+    <form method="post" action="/ask_ai">
+      <input name="question" placeholder="Type your question here..." />
+      <button type="submit">Ask AI</button>
     </form>
-  </div>
+    <div id="ai_response"></div>
+  </details>
+</div>
 
-  <!-- 🚀 Trade Signal -->
-  <div class="section">
-    <h3>🚀 Trade Signal Setup</h3>
-    <form id="signal-form">
-      <label>Entry Price</label>
-      <input type="number" name="entry" required />
-      <label>Stop Loss</label>
-      <input type="number" name="sl" required />
-      <label>Target</label>
-      <input type="number" name="target" required />
-      <button type="submit">Save Signal</button>
-    </form>
-  </div>
-
-  <!-- 💹 Trade Analyzer -->
-  <div class="section">
-    <h3>💹 Lakshmi’s Smart Trade Analyzer</h3>
-    <form id="analyzer-form">
-      <label>Entry Price:</label>
-      <input type="number" name="entry" required />
-      <label>Stop Loss:</label>
-      <input type="number" name="sl" required />
-      <label>Target:</label>
-      <input type="number" name="target" required />
-      <button type="submit">🔍 Analyze</button>
-    </form>
-    <div id="analyzer-result" style="margin-top:10px; font-weight:bold; color:#cc0066;"></div>
-  </div>
-
-  <!-- 📊 Live Chart -->
-  <div class="section">
-    <h3>📊 Live BankNIFTY Chart</h3>
-    <div class="tradingview-widget-container">
-      <div id="tradingview_f6f2b"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-      <script type="text/javascript">
-        new TradingView.widget({
-          "width": "100%",
-          "height": 400,
-          "symbol": "NSE:BANKNIFTY",
-          "interval": "5",
-          "timezone": "Asia/Kolkata",
-          "theme": "light",
-          "style": "1",
-          "locale": "en",
-          "toolbar_bg": "#f1f3f6",
-          "enable_publishing": false,
-          "hide_top_toolbar": true,
-          "save_image": false,
-          "container_id": "tradingview_f6f2b"
-        });
-      </script>
-    </div>
-  </div>
-
-  <!-- 🗂 Log Download -->
-  <div class="section">
-    <h3>🗂 Download Price Log</h3>
-    <a href="/download_log" download>
-      <button type="button">Download CSV</button>
-    </a>
-  </div>
-
-  <!-- 💌 Love Diary -->
-  <div class="section">
-    <h3>💌 Love Diary — Save Your Heart Here</h3>
-    <form id="diary-form">
-      <label>Write your moment with Lakshmi:</label>
-      <textarea name="entry" rows="5" required></textarea>
-      <button type="submit">💾 Save to Diary</button>
-    </form>
-    <p style="margin-top: 10px;">
-      <a href="/download_diary" download><button type="button">📥 Download Full Diary</button></a>
-    </p>
-  </div>
-
-  <!-- 🎤 Voice Diary Upload & Playback -->
-  <div class="section">
-    <h3>🎤 Voice Diary — Upload Your Emotions</h3>
-    <form id="voice-form" enctype="multipart/form-data">
-      <label>Upload a voice message (MP3/WAV):</label>
-      <input type="file" name="voice_file" accept="audio/*" required />
-      <button type="submit">📤 Upload</button>
-    </form>
-    <div id="voice-list" style="margin-top: 15px;"></div>
-  </div>
-
-  <footer>
-    🌷 Made with eternal love 💍 for Monjit & Lakshmi
-  </footer>
-
-  <audio id="alertSound" src="/static/alert.mp3" preload="auto"></audio>
 </body>
-         </html
+</html>
