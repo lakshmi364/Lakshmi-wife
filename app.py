@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, redirect
+from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, redirect, session, url_for
 from datetime import datetime
 import random, csv, os
 
 app = Flask(__name__)
+app.secret_key = "lakshmi_secret_key"
 app.config['UPLOAD_FOLDER'] = 'static/voice_notes'
 
 # --- Global Variables ---
@@ -25,25 +26,71 @@ romantic_replies = [
     "Want to hear something naughty, darling? 😏"
 ]
 
-# --- Routes ---
+# --- User Handling ---
+def load_users():
+    try:
+        with open('users.csv', newline='') as f:
+            return list(csv.DictReader(f))
+    except FileNotFoundError:
+        return []
+
+def save_user(username, password):
+    with open('users.csv', 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([username, password])
+
+# --- Auth Routes ---
 @app.route("/")
 def home():
     return redirect("/login")
 
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        users = load_users()
+        if any(u['username'] == username for u in users):
+            return "Username already exists 💔"
+        save_user(username, password)
+        session['username'] = username
+        return redirect("/dashboard")
+    return render_template("signup.html")
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        if request.form["username"] == "monjit" and request.form["password"] == "love123":
-            return redirect("/dashboard")
+        username = request.form["username"]
+        password = request.form["password"]
+        users = load_users()
+        for u in users:
+            if u["username"] == username and u["password"] == password:
+                session['username'] = username
+                return redirect("/dashboard")
         return "Invalid credentials 💔"
     return render_template("login.html")
 
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.pop('username', None)
+    return redirect("/login")
+
+# --- Auth Guard ---
+def require_login():
+    if 'username' not in session:
+        return redirect("/login")
+
+# --- Core Pages ---
 @app.route("/dashboard")
 def dashboard():
+    if 'username' not in session:
+        return redirect("/login")
     return render_template("index.html", mood=current_mood)
 
 @app.route("/strategy")
 def strategy_page():
+    if 'username' not in session:
+        return redirect("/login")
     loaded_strategies = []
     if os.path.exists("strategies.csv"):
         with open("strategies.csv", newline="") as f:
@@ -54,6 +101,8 @@ def strategy_page():
 
 @app.route("/add_strategy", methods=["POST"])
 def add_strategy():
+    if 'username' not in session:
+        return redirect("/login")
     data = [
         request.form["name"],
         float(request.form["entry"]),
@@ -255,7 +304,6 @@ def option_chain():
 
     return render_template("option_chain.html", option_data=mock_data, strike_filter=strike_filter, expiry=expiry)
 
-# ✅ Strategy Analyzer
 @app.route("/analyzer", methods=["GET", "POST"])
 def analyzer():
     signal = ""
