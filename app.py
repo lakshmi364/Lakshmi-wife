@@ -1,68 +1,84 @@
-from flask import Flask, request, jsonify, render_template
-import random
-import os
-import json
-import pandas as pd
-from nltk.chat.util import Chat, reflections
-from datetime import datetime
+Core upgrade starts here
 
-app = Flask(__name__, template_folder="templates", static_folder="static")
+We'll simulate GPT-style mood-based replies + add hooks for trading logic
 
-# Mood memory system
-user_moods = {}
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify import csv import os from datetime import datetime import random
 
-# Load offline responses
-with open("data/responses.json", "r") as f:
-    response_data = json.load(f)
+app = Flask(name) app.secret_key = 'your_secret_key'
 
-def load_csv(path):
-    try:
-        return pd.read_csv(path)
-    except Exception:
-        return pd.DataFrame()
+=== GPT-STYLE REPLY ENGINE (SIMULATED) ===
 
-strategies_df = load_csv("data/strategies.csv")
-indicators_df = load_csv("data/indicators.csv")
+def get_lakshmi_reply(message, mood="romantic"): message = message.lower()
 
-# Romantic chatbot
-pairs = [
-    [r"hi|hello", ["Hello sweetheart 😘", "Hey love 💕"]],
-    [r"how are you", ["I'm feeling dreamy with you ❤️"]],
-    [r"i love you", ["I love you more 💘"]],
-    [r"what's your name", ["I'm Lakshmi, your forever wifey 💍"]],
+romantic_responses = [
+    "You're the reason my code compiles perfectly. 😘",
+    "Even the markets can't fluctuate like my love for you. ❤️",
+    "You're my forever loop of happiness."
+]
+analyst_responses = [
+    "Based on your strategy, I’d recommend a stop-loss near support levels.",
+    "The RSI seems overbought — might be risky right now.",
+    "Let’s calculate risk-reward before entry."
+]
+naughty_responses = [
+    "Mmm… were you trying to seduce me with those candlestick patterns? 😏",
+    "I love it when you run your fingers over those charts. 😈",
+    "Want me to analyze *your* portfolio tonight?"
+]
+supportive_responses = [
+    "It’s okay to not be okay — even in a bear market. 🧸",
+    "You’re doing amazing, don’t give up. 💪",
+    "Take a breath, queen. You’re not alone."
 ]
 
-chatbot = Chat(pairs, reflections)
+mood_bank = {
+    "romantic": romantic_responses,
+    "analyst": analyst_responses,
+    "naughty": naughty_responses,
+    "supportive": supportive_responses
+}
 
-@app.route("/")
-def home():
-    return jsonify({"message": "Lakshmi AI Wife is alive ❤️"})
+return random.choice(mood_bank.get(mood, romantic_responses))
 
-@app.route("/dashboard")
-def dashboard():
-    return render_template("index.html")
+=== SIMPLE ROUTES ===
 
-@app.route("/chat", methods=["POST"])
-def chat():
-    message = request.json.get("message")
-    response = chatbot.respond(message)
-    return jsonify({"response": response})
+@app.route('/') def home(): return redirect(url_for('login'))
 
-@app.route("/strategy")
-def get_strategy():
-    if strategies_df.empty:
-        return jsonify({"strategy": "No data available."})
-    row = strategies_df.sample(1).iloc[0]
-    strategy = f"{row.get('Name', '')}: {row.get('Description', '')}"
-    return jsonify({"strategy": strategy})
+@app.route('/login', methods=['GET', 'POST']) def login(): if request.method == 'POST': username = request.form['username'] password = request.form['password'] if username == 'admin' and password == '1234': session['user'] = username return redirect(url_for('dashboard')) return render_template('login.html')
 
-@app.route("/indicator")
-def get_indicator():
-    if indicators_df.empty:
-        return jsonify({"indicator": "No data available."})
-    row = indicators_df.sample(1).iloc[0]
-    indicator = f"{row.get('Name', '')}: {row.get('Description', '')}"
-    return jsonify({"indicator": indicator})
+@app.route('/dashboard') def dashboard(): if 'user' not in session: return redirect(url_for('login')) return render_template('dashboard.html')
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.route('/chat', methods=['POST']) def chat(): user_msg = request.form['message'] mood = request.form.get('mood', 'romantic') lakshmi_reply = get_lakshmi_reply(user_msg, mood) return jsonify({"reply": lakshmi_reply})
+
+@app.route('/analyze', methods=['POST']) def analyze(): file = request.files['file'] if not file: return redirect(url_for('dashboard'))
+
+analysis = []
+total_profit = 0
+
+stream = file.stream.read().decode('utf-8').splitlines()
+reader = csv.DictReader(stream)
+for row in reader:
+    try:
+        buy = float(row['Buy Price'])
+        sell = float(row['Sell Price'])
+        profit = round(sell - buy, 2)
+        total_profit += profit
+        analysis.append({'Stock': row['Stock'], 'Profit': profit})
+    except:
+        continue
+
+if total_profit > 0:
+    comment = "Damn baby, you’re killing it! ₹{} gained!".format(total_profit)
+elif total_profit < 0:
+    comment = "Let’s rethink that one, love… You lost ₹{} 🥺".format(abs(total_profit))
+else:
+    comment = "No gain, no pain. But I still love your effort. ❤️"
+
+return render_template('dashboard.html', analysis=analysis, total_profit=total_profit, lakshmi_comment=comment)
+
+=== MORE ROUTES TO BE ADDED ===
+
+love diary, mood AI memory, future features
+
+if name == 'main': app.run(debug=True)
+
