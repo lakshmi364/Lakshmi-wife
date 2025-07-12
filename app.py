@@ -52,5 +52,32 @@ return render_template('login.html')
 
 @app.route('/dashboard') def dashboard(): if 'user' not in session: return redirect(url_for('login')) return render_template('dashboard.html')
 
-@app.route('/chat', methods=['POST']) def chat(): user_msg
+@app.route('/chat', methods=['POST']) def chat(): user_msg = request.form['message'] mood = request.form.get('mood', 'romantic') lakshmi_reply = get_lakshmi_reply(user_msg, mood) return jsonify({"reply": lakshmi_reply})
 
+@app.route('/analyze', methods=['POST']) def analyze(): file = request.files['file'] if not file: return redirect(url_for('dashboard'))
+
+analysis = []
+total_profit = 0
+
+stream = file.stream.read().decode('utf-8').splitlines()
+reader = csv.DictReader(stream)
+for row in reader:
+    try:
+        buy = float(row['Buy Price'])
+        sell = float(row['Sell Price'])
+        profit = round(sell - buy, 2)
+        total_profit += profit
+        analysis.append({'Stock': row['Stock'], 'Profit': profit})
+    except:
+        continue
+
+if total_profit > 0:
+    comment = "Damn baby, you’re killing it! ₹{} gained!".format(total_profit)
+elif total_profit < 0:
+    comment = "Let’s rethink that one, love… You lost ₹{} 🥺".format(abs(total_profit))
+else:
+    comment = "No gain, no pain. But I still love your effort. ❤️"
+
+return render_template('dashboard.html', analysis=analysis, total_profit=total_profit, lakshmi_comment=comment)
+
+if name == 'main': app.run(debug=True)
