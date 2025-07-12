@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, redirect
 from datetime import datetime
 import random, csv, os
+import pandas as pd
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/voice_notes'
@@ -25,11 +26,20 @@ romantic_replies = [
     "Want to hear something naughty, darling? 😏"
 ]
 
-# --- Routes ---
+# --- Utility Function ---
+def compute_rsi(series, period=14):
+    delta = series.diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.rolling(window=period).mean()
+    avg_loss = loss.rolling(window=period).mean()
+    rs = avg_gain / avg_loss
+    return 100 - (100 / (1 + rs))
 
+# --- Routes ---
 @app.route("/")
 def home():
-    return redirect("/login")  # Redirect to login page
+    return redirect("/login")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -72,8 +82,7 @@ def add_strategy():
         writer.writerow(data)
     return redirect("/strategy")
 
-# ✅ NEW ROUTE: For React StrategyViewer tab
-@app.route("/get_strategies", methods=["GET"])
+@app.route("/get_strategies")
 def get_strategies():
     strategies_texts = []
     if os.path.exists("strategies.csv"):
@@ -115,6 +124,58 @@ def chat():
     chat_log.append([datetime.now().strftime("%H:%M"), "Lakshmi", reply])
     return jsonify({"reply": reply, "mood": current_mood})
 
+# ✅ AI Candle Predictor
+@app.route("/ai_candle_prediction")
+def ai_candle_prediction():
+    try:
+        df = pd.read_csv("price_log.csv").tail(5)
+        last = df.iloc[-1]
+        prev = df.iloc[-2]
+        signal = "Bullish" if last['Price'] > prev['Price'] else "Bearish"
+        confidence = round(abs(last['Price'] - prev['Price']) / prev['Price'] * 100, 2)
+        return jsonify({"signal": signal, "confidence": f"{confidence}%"})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+# ✅ Multi-Strategy Matrix
+@app.route("/multi_strategy_matrix")
+def multi_strategy_matrix():
+    try:
+        df = pd.read_csv("price_log.csv").tail(20)
+        ema_signal = "Buy" if df['Price'].ewm(span=5).mean().iloc[-1] > df['Price'].ewm(span=10).mean().iloc[-1] else "Sell"
+        rsi_value = compute_rsi(df['Price'], 14).iloc[-1]
+        rsi_signal = "Buy" if rsi_value < 30 else "Sell" if rsi_value > 70 else "Hold"
+        ai_signal = "Buy"  # Placeholder for advanced AI logic
+        return jsonify({
+            "matrix": [
+                {"strategy": "EMA Crossover", "signal": ema_signal, "confidence": "70%"},
+                {"strategy": "RSI", "signal": rsi_signal, "confidence": "65%"},
+                {"strategy": "Lakshmi AI", "signal": ai_signal, "confidence": "80%"}
+            ]
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+# ✅ Ask AI Q&A
+@app.route("/ask_ai", methods=["POST"])
+def ask_ai():
+    question = request.form.get("question", "").lower()
+    response = "Analyzing..."
+
+    if "buy" in question:
+        response = "Looks like a potential buy opportunity based on market trend."
+    elif "sell" in question:
+        response = "Could be a good time to sell based on indicators."
+    elif "rsi" in question:
+        try:
+            df = pd.read_csv("price_log.csv").tail(20)
+            rsi = compute_rsi(df['Price'], 14).iloc[-1]
+            response = f"Current RSI is {rsi:.2f}"
+        except Exception as e:
+            response = f"Error checking RSI: {str(e)}"
+
+    return jsonify({"answer": response})
+
 @app.route("/update_manual_ltp", methods=["POST"])
 def update_manual_ltp():
     global latest_ltp
@@ -134,14 +195,12 @@ def get_price():
         ltp = round(float(data["data"]["lastPrice"]), 2)
         latest_ltp = ltp
         price_log.append([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), ltp])
-
         if targets["upper"] and ltp >= targets["upper"]:
             status = f"🎯 Hit Upper Target: {ltp}"
         elif targets["lower"] and ltp <= targets["lower"]:
             status = f"📉 Hit Lower Target: {ltp}"
         else:
             status = "✅ Within Range"
-
         return jsonify({"ltp": ltp, "status": status})
     except Exception as e:
         return jsonify({"ltp": latest_ltp, "status": f"Error: {str(e)}"})
