@@ -11,7 +11,7 @@ import random
 app = Flask(name) 
 app.secret_key = 'your_secret_key'
 
-=== GPT-STYLE REPLY ENGINE (SIMULATED) ===
+# === GPT-STYLE REPLY ENGINE (SIMULATED) ===
 
 def get_lakshmi_reply(message, mood="romantic"): message = message.lower()
 
