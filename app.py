@@ -1,7 +1,3 @@
-# Core upgrade starts here
-
-# We'll simulate GPT-style mood-based replies + add hooks for trading logic
-
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import csv
 import os
@@ -47,7 +43,7 @@ def get_lakshmi_reply(message, mood="romantic"):
     return random.choice(mood_bank.get(mood, romantic_responses))
 
 
-# === SIMPLE ROUTES ===
+# === ROUTES ===
 
 @app.route('/')
 def home():
@@ -98,17 +94,13 @@ def analyze():
             continue
 
     if total_profit > 0:
-        comment = "Damn baby, you’re killing it! ₹{} gained!".format(total_profit)
+        comment = f"Damn baby, you’re killing it! ₹{total_profit} gained!"
     elif total_profit < 0:
-        comment = "Let’s rethink that one, love… You lost ₹{} 🥺".format(abs(total_profit))
+        comment = f"Let’s rethink that one, love… You lost ₹{abs(total_profit)} 🥺"
     else:
         comment = "No gain, no pain. But I still love your effort. ❤️"
 
     return render_template('dashboard.html', analysis=analysis, total_profit=total_profit, lakshmi_comment=comment)
-
-
-# === MORE ROUTES TO BE ADDED ===
-# love diary, mood AI memory, future features
 
 if __name__ == '__main__':
     app.run(debug=True)
