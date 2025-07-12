@@ -1,77 +1,120 @@
+/* 💖 General Reset and Layout */
 body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to right, #fff0f5, #e6e6fa);
   margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f7f8fc;
+  padding: 20px;
   color: #333;
 }
 
-header {
-  background: linear-gradient(to right, #f857a6, #ff5858);
-  color: white;
-  padding: 1rem 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+h1, h3 {
+  text-align: center;
+  color: #cc0066;
 }
 
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-nav a {
-  color: white;
-  text-decoration: none;
-  margin-left: 2rem;
-  font-weight: 500;
-  transition: color 0.3s;
-}
-
-nav a:hover {
-  color: #ffe;
-}
-
-.container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  padding: 2rem;
-}
-
-.card {
-  background: white;
+.section {
+  background: #ffffffdd;
+  padding: 20px;
+  margin: 20px auto;
   border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  max-width: 720px;
 }
 
-.card:hover {
-  transform: translateY(-5px);
+label {
+  display: block;
+  margin: 10px 0 5px;
+  font-weight: 500;
+  color: #444;
 }
 
-.card h2 {
-  margin: 0 0 0.5rem;
-  color: #f857a6;
+input[type="number"],
+input[type="text"],
+input[type="password"],
+textarea {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #ffc0cb;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-size: 1rem;
 }
 
-.card p {
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-
-.button {
-  background: #f857a6;
+button {
+  background-color: #ff66b2;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 10px 20px;
+  font-weight: bold;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 1rem;
-  transition: background 0.3s;
+  margin: 5px;
+  transition: background 0.3s ease;
 }
 
-.button:hover {
-  background: #e64599;
+button:hover {
+  background-color: #cc007a;
+}
+
+a button {
+  background-color: #6a5acd;
+}
+
+a button:hover {
+  background-color: #483d8b;
+}
+
+textarea {
+  resize: vertical;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+}
+
+/* 💬 Chatbox */
+#chat-box {
+  background: #fef0f5;
+  border: 2px solid #ff99cc;
+  border-radius: 10px;
+  padding: 15px;
+  height: 240px;
+  overflow-y: auto;
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+
+.mood-display {
+  text-align: center;
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #880e4f;
+}
+
+.suggestions,
+.mood-buttons {
+  text-align: center;
+}
+
+/* 📊 TradingView Chart Container */
+.tradingview-widget-container {
+  margin-top: 20px;
+  border: 2px solid #f5c2e7;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* 💗 Responsive Layout */
+@media (max-width: 768px) {
+  .section {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+  
