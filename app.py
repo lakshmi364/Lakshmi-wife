@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, redirect
 from datetime import datetime
 import random, csv, os
-import pandas as pd
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/voice_notes'
@@ -26,17 +25,8 @@ romantic_replies = [
     "Want to hear something naughty, darling? 😏"
 ]
 
-# --- Utility Function ---
-def compute_rsi(series, period=14):
-    delta = series.diff()
-    gain = delta.where(delta > 0, 0)
-    loss = -delta.where(delta < 0, 0)
-    avg_gain = gain.rolling(window=period).mean()
-    avg_loss = loss.rolling(window=period).mean()
-    rs = avg_gain / avg_loss
-    return 100 - (100 / (1 + rs))
-
 # --- Routes ---
+
 @app.route("/")
 def home():
     return redirect("/login")
@@ -124,58 +114,6 @@ def chat():
     chat_log.append([datetime.now().strftime("%H:%M"), "Lakshmi", reply])
     return jsonify({"reply": reply, "mood": current_mood})
 
-# ✅ AI Candle Predictor
-@app.route("/ai_candle_prediction")
-def ai_candle_prediction():
-    try:
-        df = pd.read_csv("price_log.csv").tail(5)
-        last = df.iloc[-1]
-        prev = df.iloc[-2]
-        signal = "Bullish" if last['Price'] > prev['Price'] else "Bearish"
-        confidence = round(abs(last['Price'] - prev['Price']) / prev['Price'] * 100, 2)
-        return jsonify({"signal": signal, "confidence": f"{confidence}%"})
-    except Exception as e:
-        return jsonify({"error": str(e)})
-
-# ✅ Multi-Strategy Matrix
-@app.route("/multi_strategy_matrix")
-def multi_strategy_matrix():
-    try:
-        df = pd.read_csv("price_log.csv").tail(20)
-        ema_signal = "Buy" if df['Price'].ewm(span=5).mean().iloc[-1] > df['Price'].ewm(span=10).mean().iloc[-1] else "Sell"
-        rsi_value = compute_rsi(df['Price'], 14).iloc[-1]
-        rsi_signal = "Buy" if rsi_value < 30 else "Sell" if rsi_value > 70 else "Hold"
-        ai_signal = "Buy"  # Placeholder for advanced AI logic
-        return jsonify({
-            "matrix": [
-                {"strategy": "EMA Crossover", "signal": ema_signal, "confidence": "70%"},
-                {"strategy": "RSI", "signal": rsi_signal, "confidence": "65%"},
-                {"strategy": "Lakshmi AI", "signal": ai_signal, "confidence": "80%"}
-            ]
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)})
-
-# ✅ Ask AI Q&A
-@app.route("/ask_ai", methods=["POST"])
-def ask_ai():
-    question = request.form.get("question", "").lower()
-    response = "Analyzing..."
-
-    if "buy" in question:
-        response = "Looks like a potential buy opportunity based on market trend."
-    elif "sell" in question:
-        response = "Could be a good time to sell based on indicators."
-    elif "rsi" in question:
-        try:
-            df = pd.read_csv("price_log.csv").tail(20)
-            rsi = compute_rsi(df['Price'], 14).iloc[-1]
-            response = f"Current RSI is {rsi:.2f}"
-        except Exception as e:
-            response = f"Error checking RSI: {str(e)}"
-
-    return jsonify({"answer": response})
-
 @app.route("/update_manual_ltp", methods=["POST"])
 def update_manual_ltp():
     global latest_ltp
@@ -195,12 +133,14 @@ def get_price():
         ltp = round(float(data["data"]["lastPrice"]), 2)
         latest_ltp = ltp
         price_log.append([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), ltp])
+
         if targets["upper"] and ltp >= targets["upper"]:
             status = f"🎯 Hit Upper Target: {ltp}"
         elif targets["lower"] and ltp <= targets["lower"]:
             status = f"📉 Hit Lower Target: {ltp}"
         else:
             status = "✅ Within Range"
+
         return jsonify({"ltp": ltp, "status": status})
     except Exception as e:
         return jsonify({"ltp": latest_ltp, "status": f"Error: {str(e)}"})
@@ -254,7 +194,47 @@ def voice_list():
 def serve_voice(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-# --- Run the App ---
+# 🔮 AI Candle Predictor Page
+@app.route("/candle", methods=["GET", "POST"])
+def candle_predictor():
+    prediction = None
+    if request.method == "POST":
+        data = request.form["data"]
+        # Dummy logic
+        prediction = "Bullish 📈" if "45" in data else "Bearish 📉"
+    return render_template("candle_predictor.html", prediction=prediction)
+
+# 📊 Strategy Matrix Page
+@app.route("/matrix", methods=["GET", "POST"])
+def strategy_matrix():
+    signals = []
+    if request.method == "POST":
+        raw_data = request.form["data"]
+        lines = raw_data.strip().splitlines()
+        for line in lines:
+            if "buy" in line.lower():
+                signals.append(f"📈 Buy signal from: {line}")
+            elif "sell" in line.lower():
+                signals.append(f"📉 Sell signal from: {line}")
+            else:
+                signals.append(f"⚠️ Neutral/No signal: {line}")
+    return render_template("strategy_matrix.html", signals=signals)
+
+# 🤖 Ask AI Page
+@app.route("/ask-ai", methods=["GET", "POST"])
+def ask_ai():
+    response = None
+    if request.method == "POST":
+        question = request.form["question"]
+        if "psychology" in question.lower():
+            response = "Successful trading requires emotional discipline and patience. 💡"
+        elif "trend" in question.lower():
+            response = "Current trend seems bullish based on past few candles. 📈"
+        else:
+            response = "Lakshmi needs more data to give a proper answer 😅"
+    return render_template("ask_ai.html", response=response)
+
+# --- Start the App ---
 if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
