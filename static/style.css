@@ -1,109 +1,134 @@
-/* 🌸 Romantic Background */
-body {
+/* 🌈 Background only for auth pages */
+.auth-body {
   font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to right, #ffe6f0, #e6faff);
+  background: radial-gradient(circle at top left, #ffe6f0, #e6faff);
   height: 100vh;
   margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
-/* 💖 Login & Signup Card */
+/* 💖 Auth Container */
 .auth-container {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(12px);
-  padding: 30px;
-  border-radius: 18px;
-  box-shadow: 0 8px 24px rgba(255, 105, 180, 0.2);
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(15px);
+  padding: 40px 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(255, 105, 180, 0.2);
   width: 90%;
-  max-width: 360px;
+  max-width: 380px;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  animation: fadeIn 0.7s ease-in;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: fadeIn 1s ease-in-out;
 }
 
-/* 📝 Title */
+/* 🧚 Header with icon */
+.auth-header {
+  margin-bottom: 25px;
+  animation: float 3s infinite ease-in-out;
+}
+
+.auth-icon {
+  font-size: 2.5rem;
+  display: block;
+}
+
 .auth-container h2 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   color: #880e4f;
-  margin-bottom: 20px;
+  margin: 8px 0 0;
 }
 
-/* 🧁 Inputs */
-.auth-container input {
+/* 🌸 Inputs */
+.auth-input {
   width: 100%;
   padding: 12px;
-  margin-bottom: 14px;
-  border-radius: 10px;
+  margin-bottom: 16px;
+  border-radius: 12px;
   border: 1px solid #ffcce0;
-  background: #fff9fb;
+  background: #fffafc;
   font-size: 1rem;
-  transition: 0.2s;
+  transition: all 0.2s ease-in-out;
 }
 
-.auth-container input:focus {
+.auth-input:focus {
   border-color: #ff69b4;
   outline: none;
   background: #fff0f5;
 }
 
-/* 🎀 Button */
-.auth-container button {
+/* 💕 Button */
+.auth-button {
   width: 100%;
   padding: 12px;
-  background: #ff69b4;
+  background: linear-gradient(to right, #ff69b4, #ff85c1);
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   font-weight: bold;
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.3s ease;
 }
 
-.auth-container button:hover {
+.auth-button:hover {
   background: #e60073;
 }
 
-/* 🔗 Link */
-.auth-container p {
-  margin-top: 14px;
+/* 🔗 Links */
+.auth-link {
+  margin-top: 18px;
   font-size: 0.95rem;
   color: #333;
 }
 
-.auth-container a {
-  color: #663399;
+.auth-link a {
+  color: #7b1fa2;
   text-decoration: none;
   font-weight: 500;
 }
 
-.auth-container a:hover {
+.auth-link a:hover {
   text-decoration: underline;
 }
 
-/* ❤️ Error Message */
-.error {
+/* ❌ Error */
+.auth-error {
   color: red;
   font-size: 14px;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
-/* ✨ Animation */
+/* ✨ Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1);
   }
 }
 
-/* 📱 Responsive */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(-2px);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+/* 📱 Mobile Responsiveness */
 @media (max-width: 480px) {
   .auth-container {
-    padding: 25px 20px;
+    padding: 30px 20px;
   }
+
+  .auth-container h2 {
+    font-size: 1.2rem;
+  }
+}
