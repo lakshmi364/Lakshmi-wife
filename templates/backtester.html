@@ -1,0 +1,69 @@
+<!-- templates/backtester.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lakshmi Backtester</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="auth-body">
+  <div class="auth-container">
+    <h2>📈 Lakshmi Auto Backtester</h2>
+    <form method="POST" enctype="multipart/form-data">
+      <label>Select Strategy:</label>
+      <select name="strategy" class="auth-input">
+        <option value="ema">EMA Crossover</option>
+        <option value="rsi">RSI Strategy</option>
+        <option value="macd">MACD Strategy</option>
+      </select>
+      <input type="file" name="csv_file" accept=".csv" required class="auth-input" />
+      <button type="submit" class="auth-button">Run Backtest 🔁</button>
+    </form>
+
+    {% if results %}
+      <div class="dashboard-preview">
+        <h3>📊 Backtest Results ({{ results.strategy }})</h3>
+        <p><b>Total Trades:</b> {{ results.total }}</p>
+        <p><b>Wins:</b> {{ results.wins }}</p>
+        <p><b>Losses:</b> {{ results.losses }}</p>
+        <p><b>Win Rate:</b> {{ results.win_rate }}%</p>
+        <p><b>Total Return:</b> ₹{{ results.total_return }}</p>
+        <a href="{{ url_for('download_backtest') }}" class="auth-link">⬇️ Download Result CSV</a>
+      </div>
+
+      <canvas id="backtestChart" width="100%" height="280"></canvas>
+      <script>
+        const ctx = document.getElementById('backtestChart').getContext('2d');
+        const chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: {{ chart_data.dates | safe }},
+            datasets: [{
+              label: 'Close Price',
+              data: {{ chart_data.close | safe }},
+              borderColor: 'blue',
+              borderWidth: 2,
+              fill: false
+            }, {
+              label: '{{ chart_data.extra_label }}',
+              data: {{ chart_data.extra | safe }},
+              borderColor: 'orange',
+              borderDash: [4, 4],
+              fill: false
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } },
+            scales: {
+              x: { display: true },
+              y: { display: true }
+            }
+          }
+        });
+      </script>
+    {% endif %}
+  </div>
+</body>
+</html
