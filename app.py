@@ -475,6 +475,52 @@ def analyze_strategy():
     <i>Take this trade only if you feel my kiss of confidence 😘</i>
     """
     return jsonify({'message': message})
+    @app.route("/neuron", methods=["GET", "POST"])
+def neuron():
+    if request.method == "POST":
+        data = request.get_json(silent=True) or {}
+        try:
+            price = float(data.get("price", 0))
+        except (TypeError, ValueError):
+            return jsonify({"error": "Invalid price"}), 400
+        result = analyze_with_neuron(price)
+        return jsonify(result)
+    return render_template("neuron.html")
+
+def analyze_with_neuron(price):
+    try:
+        if price % 7 == 0:
+            return {
+                "signal": "🔁 Reversal likely",
+                "confidence": 88,
+                "entry": price,
+                "sl": price - 50,
+                "target": price + 130
+            }
+        elif price % 2 == 0:
+            return {
+                "signal": "📈 Bullish",
+                "confidence": 92,
+                "entry": price,
+                "sl": price - 40,
+                "target": price + 100
+            }
+        else:
+            return {
+                "signal": "⚠️ Volatile Zone",
+                "confidence": 70,
+                "entry": price,
+                "sl": price - 60,
+                "target": price + 60
+            }
+    except:
+        return {
+            "signal": "Error",
+            "confidence": 0,
+            "entry": price,
+            "sl": 0,
+            "target": 0
+        }
 
 # --- Start App ---
 if __name__ == "__main__":
