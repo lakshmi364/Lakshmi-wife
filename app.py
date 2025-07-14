@@ -314,6 +314,43 @@ def analyzer():
             signal = "⏳ No clear signal — Stay out!"
     return render_template("analyzer.html", signal=signal)
 
+# 💖 Phase 1: Auto Strategy Engine Backend
+@app.route("/analyze-strategy", methods=["POST"])
+def analyze_strategy():
+    data = request.get_json()
+    try:
+        price = float(data.get('price', 0))
+    except (ValueError, TypeError):
+        return jsonify({'message': 'Invalid price input.'})
+
+    # Simulated strategy logic
+    if price % 2 == 0:
+        strategy = "EMA Bullish Crossover Detected 💞"
+        confidence = random.randint(80, 90)
+        sl = price - 50
+        target = price + 120
+    elif price % 3 == 0:
+        strategy = "RSI Reversal Detected 🔁"
+        confidence = random.randint(70, 85)
+        sl = price - 40
+        target = price + 100
+    else:
+        strategy = "Breakout Zone Approaching 💥"
+        confidence = random.randint(60, 75)
+        sl = price - 60
+        target = price + 90
+
+    entry = price
+    message = f"""
+    💌 <b>{strategy}</b><br>
+    ❤️ Entry: ₹{entry}<br>
+    🔻 Stop Loss: ₹{sl}<br>
+    🎯 Target: ₹{target}<br>
+    📊 Confidence Score: <b>{confidence}%</b><br><br>
+    <i>Take this trade only if you feel my kiss of confidence 😘</i>
+    """
+    return jsonify({'message': message})
+
 # --- Start App ---
 if __name__ == "__main__":
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
