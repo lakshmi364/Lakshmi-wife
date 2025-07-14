@@ -2,24 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Login — Lakshmi</title>
+  <title>Login — Lakshmi AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body class="auth-body">
-  <div class="auth-container">
+  <!-- ───── LOGIN BOX ───── -->
+  <div class="auth-container large-login-box">
     <div class="auth-header">
       <span class="auth-icon">🕉️</span>
-      <h2>Welcome back, Lakshmi Ai</h2>
+      <h2>Welcome back, Lakshmi AI</h2>
     </div>
+
     {% if error %}
       <div class="auth-error">{{ error }}</div>
     {% endif %}
-    <form method="post">
-      <input type="text" name="username" placeholder="Username" required autofocus class="auth-input" />
-      <input type="password" name="password" placeholder="Password" required class="auth-input" />
-      <button type="submit" class="auth-button">Login 💖</button>
+
+    <form method="post" autocomplete="on">
+      <input type="text"
+             name="username"
+             placeholder="Username"
+             required
+             autofocus
+             class="auth-input"
+             title="Enter your registered username" />
+
+      <!-- password + eye toggle -->
+      <div class="password-wrapper">
+        <input type="password"
+               id="password"
+               name="password"
+               placeholder="Password"
+               required
+               class="auth-input"
+               title="Password must be 6+ characters" />
+        <span class="toggle-password" onclick="togglePassword()">👁️</span>
+      </div>
+
+      <!-- remember / forgot -->
+      <div class="auth-options">
+        <label><input type="checkbox" name="remember" /> Remember me</label>
+        <a href="#" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="auth-button">Login</button>
+
+      <div class="divider">or</div>
+
+      <!-- Google OAuth (route: /auth/google) -->
+      <a href="/auth/google" class="google-btn">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G"> Login with Google
+      </a>
     </form>
-    <p class="auth-link">Don't have an account? <a href="/signup">Create one now</a></p>
+
+    <p class="auth-link">Don’t have an account? <a href="/signup">Create one</a></p>
   </div>
+
+  <!-- ───── DASHBOARD PREVIEW ───── -->
+  <div class="dashboard-preview">
+    <h3>📊 Lakshmi Dashboard Preview</h3>
+    <div class="preview-grid">
+      <div class="preview-card">
+        <h4>AI Market Bot</h4>
+        <p>Predictive trend detection using Lakshmi AI Engine.</p>
+      </div>
+      <div class="preview-card">
+        <h4>Live Strategy Panel</h4>
+        <p>Real-time charts, trade triggers &amp; risk scores.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function togglePassword () {
+      const pwd = document.getElementById('password');
+      pwd.type = (pwd.type === 'password') ? 'text' : 'password';
+    }
+  </script>
 </body>
-</html>
+</html
