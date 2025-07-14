@@ -1,62 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Sign Up — Lakshmi</title>
-  <style>
-    body {
-      font-family: 'Segoe UI';
-      background: linear-gradient(to right, #ffe6f0, #e6faff);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    form {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 12px #ff69b4;
-      width: 300px;
-      text-align: center;
-    }
-    input, button {
-      margin: 10px 0;
-      padding: 10px;
-      width: 100%;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background: #ff69b4;
-      color: white;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    a {
-      display: block;
-      margin-top: 12px;
-      color: #555;
-      font-size: 14px;
-      text-decoration: none;
-    }
-    .error {
-      color: red;
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <form method="post">
-    <h2>📝 Create your Lakshmi account</h2>
+  <div class="auth-container">
+    <h2>📝 Create your Lakshmi Account</h2>
     {% if error %}
       <div class="error">{{ error }}</div>
     {% endif %}
-    <input type="text" name="username" placeholder="Choose a username" required autofocus />
-    <input type="password" name="password" placeholder="Choose a password" required />
-    <button type="submit">Sign Up</button>
-    <a href="/login">Already have an account? Login</a>
-  </form>
+    <form method="post">
+      <input type="text" name="username" placeholder="Choose a username" required autofocus />
+      <input type="password" name="password" placeholder="Choose a password" required />
+      <button type="submit">Sign Up</button>
+    </form>
+    <p>Already have an account? <a href="/login">Login</a></p>
+  </div>
 </body>
-</html>
+</html
