@@ -314,7 +314,14 @@ def analyzer():
             signal = "⏳ No clear signal — Stay out!"
     return render_template("analyzer.html", signal=signal)
 
-# 💖 Phase 1: Auto Strategy Engine Backend
+# 💖 Auto Strategy Engine Page Route
+@app.route("/strategy-engine")
+def strategy_engine():
+    if 'username' not in session:
+        return redirect("/login")
+    return render_template("strategy_engine.html")
+
+# 💖 Auto Strategy Engine Backend API
 @app.route("/analyze-strategy", methods=["POST"])
 def analyze_strategy():
     data = request.get_json()
@@ -323,7 +330,6 @@ def analyze_strategy():
     except (ValueError, TypeError):
         return jsonify({'message': 'Invalid price input.'})
 
-    # Simulated strategy logic
     if price % 2 == 0:
         strategy = "EMA Bullish Crossover Detected 💞"
         confidence = random.randint(80, 90)
@@ -350,11 +356,6 @@ def analyze_strategy():
     <i>Take this trade only if you feel my kiss of confidence 😘</i>
     """
     return jsonify({'message': message})
-    @app.route("/strategy-engine")
-def strategy_engine():
-    if 'username' not in session:
-        return redirect("/login")
-    return render_template("strategy_engine.html")
 
 # --- Start App ---
 if __name__ == "__main__":
