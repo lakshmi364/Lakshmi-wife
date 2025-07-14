@@ -24,21 +24,10 @@
   animation: fadeIn 1s ease-in-out;
 }
 
-/* 🧚 Header with icon */
-.auth-header {
-  margin-bottom: 25px;
-  animation: float 3s infinite ease-in-out;
-}
-
-.auth-icon {
-  font-size: 2.5rem;
-  display: block;
-}
-
 .auth-container h2 {
   font-size: 1.4rem;
-  color: #880e4f;
-  margin: 8px 0 0;
+  color: #222;
+  margin-bottom: 20px;
 }
 
 /* 🌸 Inputs */
@@ -47,23 +36,23 @@
   padding: 12px;
   margin-bottom: 16px;
   border-radius: 12px;
-  border: 1px solid #ffcce0;
-  background: #fffafc;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
   font-size: 1rem;
   transition: all 0.2s ease-in-out;
 }
 
 .auth-input:focus {
-  border-color: #ff69b4;
+  border-color: #007acc;
   outline: none;
-  background: #fff0f5;
+  background: #ffffff;
 }
 
 /* 💕 Button */
 .auth-button {
   width: 100%;
   padding: 12px;
-  background: linear-gradient(to right, #ff69b4, #ff85c1);
+  background: linear-gradient(to right, #007acc, #005fa3);
   color: white;
   border: none;
   border-radius: 12px;
@@ -74,7 +63,7 @@
 }
 
 .auth-button:hover {
-  background: #e60073;
+  background: #004080;
 }
 
 /* 🔗 Links */
@@ -85,7 +74,7 @@
 }
 
 .auth-link a {
-  color: #7b1fa2;
+  color: #0066cc;
   text-decoration: none;
   font-weight: 500;
 }
@@ -131,4 +120,17 @@
   .auth-container h2 {
     font-size: 1.2rem;
   }
+}
+
+/* 🧠 Lakshmi Chat Box (Larger) */
+#chat-box {
+  background: #fef0f5;
+  border: 2px solid #ff99cc;
+  border-radius: 10px;
+  padding: 20px;
+  height: 420px; /* increased size */
+  overflow-y: auto;
+  font-size: 16px;
+  margin-bottom: 15px;
+  line-height: 1.6;
 }
