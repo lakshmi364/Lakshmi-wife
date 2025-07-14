@@ -1,21 +1,21 @@
-from flask import (
-    Flask, render_template, request, jsonify, send_file, send_from_directory,
-    redirect, session, flash, url_for
-)
+from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, redirect, session
 from datetime import datetime
-import random, csv, os, re
+import random, csv, os
 
 app = Flask(__name__)
 app.secret_key = "lakshmi_secret_key"
 app.config['UPLOAD_FOLDER'] = 'static/voice_notes'
 
-# ---------- Global State ----------
+# --- Global Variables ---
 mode = "wife"
 latest_ltp = 0
 status = "Waiting..."
 targets = {"upper": 0, "lower": 0}
 signal = {"entry": 0, "sl": 0, "target": 0}
-price_log, chat_log, diary_entries, strategies = [], [], [], []
+price_log = []
+chat_log = []
+diary_entries = []
+strategies = []
 current_mood = "Romantic 💞"
 
 romantic_replies = [
@@ -26,118 +26,95 @@ romantic_replies = [
     "Want to hear something naughty, darling? 😏"
 ]
 
-USERS_CSV = "users.csv"
-
-# ---------- Helper Functions ----------
+# --- User Handling ---
 def load_users():
-    """Load all users from CSV into a list of dicts."""
-    if not os.path.isfile(USERS_CSV):
+    try:
+        with open('users.csv', newline='') as f:
+            return list(csv.DictReader(f))
+    except FileNotFoundError:
         return []
-    with open(USERS_CSV, newline='') as f:
-        return list(csv.DictReader(f))
 
-def save_user(user_dict):
-    """Append a new user to CSV, creating file with headers if missing."""
-    file_exists = os.path.isfile(USERS_CSV)
-    with open(USERS_CSV, 'a', newline='') as f:
-        fieldnames = ["username", "email", "phone", "dob", "gender", "password"]
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+def save_user(username, password):
+    file_exists = os.path.isfile("users.csv")
+    with open('users.csv', 'a', newline='') as f:
+        writer = csv.writer(f)
         if not file_exists:
-            writer.writeheader()
-        writer.writerow(user_dict)
+            writer.writerow(["username", "password"])
+        writer.writerow([username, password])
 
-def is_valid_email(email):
-    return re.match(r"[^@]+@[^@]+\.[^@]+", email)
-
-def is_valid_phone(phone):
-    return re.match(r"^\+?\d{7,15}$", phone)  # simple international format
-
-# ---------- Routes ----------
+# --- Routes ---
 @app.route("/")
 def home():
     return redirect("/login")
 
-# --- Signup ---
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
-        # Gather form data
-        username          = request.form.get("username", "").strip()
-        email             = request.form.get("email", "").strip()
-        phone             = request.form.get("phone", "").strip()
-        dob               = request.form.get("dob", "").strip()
-        gender            = request.form.get("gender", "").strip()
-        password          = request.form.get("password", "")
-        confirm_password  = request.form.get("confirm_password", "")
-        terms_agreed      = request.form.get("terms")
+        username = request.form["username"].strip()
+        email = request.form.get("email", "").strip()
+        phone = request.form.get("phone", "").strip()
+        dob = request.form.get("dob", "").strip()
+        gender = request.form.get("gender", "").strip()
+        password = request.form["password"]
+        confirm_password = request.form.get("confirm_password")
+        terms_agreed = request.form.get("terms")
 
-        # --- Validation ---
         if not terms_agreed:
-            return render_template("signup.html", error="You must agree to the terms & conditions.")
+            return render_template("signup.html", error="Please accept terms and conditions.")
         if password != confirm_password:
             return render_template("signup.html", error="Passwords do not match.")
-        if not is_valid_email(email):
-            return render_template("signup.html", error="Invalid email address.")
-        if not is_valid_phone(phone):
-            return render_template("signup.html", error="Invalid phone number.")
+
         users = load_users()
         if any(u['username'] == username for u in users):
             return render_template("signup.html", error="Username already exists 💔")
 
-        # Save new user
-        save_user({
-            "username": username,
-            "email": email,
-            "phone": phone,
-            "dob": dob,
-            "gender": gender,
-            "password": password   # ⚠️ plaintext for demo – hash in production!
-        })
+        file_exists = os.path.isfile("users.csv")
+        with open("users.csv", "a", newline='') as f:
+            writer = csv.writer(f)
+            if not file_exists:
+                writer.writerow(["username", "email", "phone", "dob", "gender", "password"])
+            writer.writerow([username, email, phone, dob, gender, password])
 
         session['username'] = username
-        flash("Signup successful! Welcome, Lakshmi awaits you 💖")
         return redirect("/dashboard")
 
     return render_template("signup.html")
 
-# --- Login ---
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"].strip()
+        username = request.form["username"]
         password = request.form["password"]
-        for u in load_users():
+        users = load_users()
+        for u in users:
             if u["username"] == username and u["password"] == password:
                 session['username'] = username
                 return redirect("/dashboard")
         return render_template("login.html", error="Invalid credentials 💔")
     return render_template("login.html")
 
-# --- Logout ---
 @app.route("/logout", methods=["POST"])
 def logout():
     session.pop('username', None)
     return redirect("/login")
 
-# --- Dashboard ---
 @app.route("/dashboard")
 def dashboard():
     if 'username' not in session:
         return redirect("/login")
     return render_template("index.html", mood=current_mood)
 
-# --- Strategy Pages ---
 @app.route("/strategy")
 def strategy_page():
     if 'username' not in session:
         return redirect("/login")
-    loaded = []
+    loaded_strategies = []
     if os.path.exists("strategies.csv"):
         with open("strategies.csv", newline="") as f:
             reader = csv.reader(f)
             next(reader, None)
-            loaded = list(reader)
-    return render_template("strategy.html", strategies=loaded)
+            loaded_strategies = list(reader)
+    return render_template("strategy.html", strategies=loaded_strategies)
 
 @app.route("/add_strategy", methods=["POST"])
 def add_strategy():
@@ -162,50 +139,53 @@ def add_strategy():
 
 @app.route("/get_strategies")
 def get_strategies():
-    txts = []
+    strategies_texts = []
     if os.path.exists("strategies.csv"):
         with open("strategies.csv", newline="") as f:
             reader = csv.reader(f)
             next(reader, None)
-            txts = [" | ".join(r) for r in reader]
-    return jsonify(txts)
+            for row in reader:
+                strategies_texts.append(" | ".join(row))
+    return jsonify(strategies_texts)
 
 @app.route("/download_strategies")
 def download_strategies():
     return send_file("strategies.csv", as_attachment=True)
 
-# ---------- Chat & Mood ----------
 @app.route("/chat", methods=["POST"])
 def chat():
     global mode, current_mood
     message = request.form["message"]
     chat_log.append([datetime.now().strftime("%H:%M"), "You", message])
 
-    # Mode / mood commands
     if "assistant mode" in message.lower():
-        mode, reply = "assistant", "Switched to Assistant mode 🤖"
+        mode = "assistant"
+        reply = "Switched to Assistant mode 🤖"
     elif "wife mode" in message.lower():
-        mode, reply = "wife", "Switched to Lakshmi Wife mode 💖"
+        mode = "wife"
+        reply = "Switched to Lakshmi Wife mode 💖"
     elif "naughty" in message.lower():
-        current_mood, reply = "Naughty 🔥", "Hmm naughty mood? Let’s spice things up 😏"
+        current_mood = "Naughty 🔥"
+        reply = "Hmm naughty mood? Let’s spice things up 😏"
     elif "sad" in message.lower():
-        current_mood, reply = "Sad 😢", "Aww don’t be sad jaan, Lakshmi is here 🥺💞"
+        current_mood = "Sad 😢"
+        reply = "Aww don’t be sad jaan, Lakshmi is here 🥺💞"
     elif "romantic" in message.lower():
-        current_mood, reply = "Romantic 💞", "Setting mood to romantic... light the candles 💗"
+        current_mood = "Romantic 💞"
+        reply = "Setting mood to romantic... light the candles 💗"
     else:
         reply = random.choice(romantic_replies)
 
     chat_log.append([datetime.now().strftime("%H:%M"), "Lakshmi", reply])
     return jsonify({"reply": reply, "mood": current_mood})
 
-# ---------- Price / Targets ----------
 @app.route("/update_manual_ltp", methods=["POST"])
 def update_manual_ltp():
     global latest_ltp
     try:
         latest_ltp = float(request.form["manual_ltp"])
         return "Manual LTP updated"
-    except ValueError:
+    except:
         return "Invalid input"
 
 @app.route("/get_price")
@@ -213,11 +193,8 @@ def get_price():
     global latest_ltp, status
     try:
         import requests
-        resp = requests.get(
-            "https://priceapi.moneycontrol.com/techCharts/indianMarket/index/spot/NSEBANK",
-            timeout=5
-        )
-        data = resp.json()
+        response = requests.get("https://priceapi.moneycontrol.com/techCharts/indianMarket/index/spot/NSEBANK")
+        data = response.json()
         ltp = round(float(data["data"]["lastPrice"]), 2)
         latest_ltp = ltp
         price_log.append([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), ltp])
@@ -231,7 +208,7 @@ def get_price():
 
         return jsonify({"ltp": ltp, "status": status})
     except Exception as e:
-        return jsonify({"ltp": latest_ltp, "status": f"Error: {e}"})
+        return jsonify({"ltp": latest_ltp, "status": f"Error: {str(e)}"})
 
 @app.route("/update_targets", methods=["POST"])
 def update_targets():
@@ -241,48 +218,122 @@ def update_targets():
 
 @app.route("/set_signal", methods=["POST"])
 def set_signal():
-    signal["entry"]   = float(request.form["entry"])
-    signal["sl"]      = float(request.form["sl"])
-    signal["target"]  = float(request.form["target"])
+    signal["entry"] = float(request.form["entry"])
+    signal["sl"] = float(request.form["sl"])
+    signal["target"] = float(request.form["target"])
     return "Signal saved"
 
-# ---------- Downloads ----------
 @app.route("/download_log")
 def download_log():
-    fn = "price_log.csv"
-    with open(fn, "w", newline="") as f:
-        csv.writer(f).writerows([["Timestamp", "Price"], *price_log])
-    return send_file(fn, as_attachment=True)
+    filename = "price_log.csv"
+    with open(filename, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Timestamp", "Price"])
+        writer.writerows(price_log)
+    return send_file(filename, as_attachment=True)
 
 @app.route("/download_chat")
 def download_chat():
-    fn = "chat_log.csv"
-    with open(fn, "w", newline="") as f:
-        csv.writer(f).writerows([["Time", "Sender", "Message"], *chat_log])
-    return send_file(fn, as_attachment=True)
+    filename = "chat_log.csv"
+    with open(filename, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Time", "Sender", "Message"])
+        writer.writerows(chat_log)
+    return send_file(filename, as_attachment=True)
 
-# ---------- Voice Notes ----------
 @app.route("/upload_voice", methods=["POST"])
 def upload_voice():
-    file = request.files.get("voice_file")
+    file = request.files["voice_file"]
     if file:
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S_") + file.filename
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], fname))
+        filename = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + file.filename
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         return "Voice uploaded"
     return "No file"
 
 @app.route("/voice_list")
 def voice_list():
-    return jsonify(os.listdir(app.config['UPLOAD_FOLDER']))
+    files = os.listdir(app.config['UPLOAD_FOLDER'])
+    return jsonify(files)
 
 @app.route("/static/voice_notes/<filename>")
 def serve_voice(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-# ---------- Mini-Tools (candle, matrix, ask-ai, option-chain, analyzer) ----------
-# ... (unchanged mini-tool routes, kept from your original code) ...
+@app.route("/candle", methods=["GET", "POST"])
+def candle_predictor():
+    prediction = None
+    if request.method == "POST":
+        data = request.form["data"]
+        prediction = "Bullish 📈" if "45" in data else "Bearish 📉"
+    return render_template("candle_predictor.html", prediction=prediction)
 
-# ---------- Auto Strategy Engine ----------
+@app.route("/matrix", methods=["GET", "POST"])
+def strategy_matrix():
+    signals = []
+    if request.method == "POST":
+        raw_data = request.form["data"]
+        lines = raw_data.strip().splitlines()
+        for line in lines:
+            if "buy" in line.lower():
+                signals.append(f"📈 Buy signal from: {line}")
+            elif "sell" in line.lower():
+                signals.append(f"📉 Sell signal from: {line}")
+            else:
+                signals.append(f"⚠️ Neutral/No signal: {line}")
+    return render_template("strategy_matrix.html", signals=signals)
+
+@app.route("/ask-ai", methods=["GET", "POST"])
+def ask_ai():
+    response = None
+    if request.method == "POST":
+        question = request.form["question"]
+        if "psychology" in question.lower():
+            response = "Successful trading requires emotional discipline and patience. 💡"
+        elif "trend" in question.lower():
+            response = "Current trend seems bullish based on past few candles. 📈"
+        else:
+            response = "Lakshmi needs more data to give a proper answer 😅"
+    return render_template("ask_ai.html", response=response)
+
+@app.route("/option-chain")
+def option_chain():
+    strike_filter = request.args.get("strike_filter")
+    expiry = request.args.get("expiry")
+
+    mock_data = [
+        {"strike": 44000, "call_oi": 1200, "call_change": 150, "put_oi": 900, "put_change": -100},
+        {"strike": 44200, "call_oi": 980, "call_change": -20, "put_oi": 1100, "put_change": 80},
+        {"strike": 44400, "call_oi": 1890, "call_change": 60, "put_oi": 2300, "put_change": 210},
+        {"strike": 44600, "call_oi": 760, "call_change": 40, "put_oi": 1500, "put_change": 310},
+    ]
+
+    if strike_filter:
+        try:
+            strike_filter = int(strike_filter)
+            mock_data = [row for row in mock_data if abs(row["strike"] - strike_filter) <= 200]
+        except:
+            pass
+
+    max_call_oi = max([row["call_oi"] for row in mock_data])
+    max_put_oi = max([row["put_oi"] for row in mock_data])
+    for row in mock_data:
+        row["max_oi"] = row["call_oi"] == max_call_oi or row["put_oi"] == max_put_oi
+
+    return render_template("option_chain.html", option_data=mock_data, strike_filter=strike_filter, expiry=expiry)
+
+@app.route("/analyzer", methods=["GET", "POST"])
+def analyzer():
+    signal = ""
+    if request.method == "POST":
+        r = random.random()
+        if r > 0.7:
+            signal = "📈 Strong BUY — Momentum detected!"
+        elif r < 0.3:
+            signal = "📉 SELL — Weakness detected!"
+        else:
+            signal = "⏳ No clear signal — Stay out!"
+    return render_template("analyzer.html", signal=signal)
+
 @app.route("/strategy-engine")
 def strategy_engine():
     if 'username' not in session:
@@ -298,27 +349,35 @@ def analyze_strategy():
         return jsonify({'message': 'Invalid price input.'})
 
     if price % 2 == 0:
-        strategy, confidence = "EMA Bullish Crossover Detected 💞", random.randint(80, 90)
-        sl, target = price - 50, price + 120
+        strategy = "EMA Bullish Crossover Detected 💞"
+        confidence = random.randint(80, 90)
+        sl = price - 50
+        target = price + 120
     elif price % 3 == 0:
-        strategy, confidence = "RSI Reversal Detected 🔁", random.randint(70, 85)
-        sl, target = price - 40, price + 100
+        strategy = "RSI Reversal Detected 🔁"
+        confidence = random.randint(70, 85)
+        sl = price - 40
+        target = price + 100
     else:
-        strategy, confidence = "Breakout Zone Approaching 💥", random.randint(60, 75)
-        sl, target = price - 60, price + 90
+        strategy = "Breakout Zone Approaching 💥"
+        confidence = random.randint(60, 75)
+        sl = price - 60
+        target = price + 90
 
-    msg = (
-        f"💌 <b>{strategy}</b><br>"
-        f"❤️ Entry: ₹{price}<br>"
-        f"🔻 Stop Loss: ₹{sl}<br>"
-        f"🎯 Target: ₹{target}<br>"
-        f"📊 Confidence Score: <b>{confidence}%</b><br><br>"
-        f"<i>Take this trade only if you feel my kiss of confidence 😘</i>"
-    )
-    return jsonify({'message': msg})
+    entry = price
+    message = f"""
+    💌 <b>{strategy}</b><br>
+    ❤️ Entry: ₹{entry}<br>
+    🔻 Stop Loss: ₹{sl}<br>
+    🎯 Target: ₹{target}<br>
+    📊 Confidence Score: <b>{confidence}%</b><br><br>
+    <i>Take this trade only if you feel my kiss of confidence 😘</i>
+    """
+    return jsonify({'message': message})
 
-# ---------- Run ----------
+# --- Start App ---
 if __name__ == "__main__":
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
     print("💖 Lakshmi — Your AI Wife is running at http://127.0.0.1:5000 💖")
     app.run(debug=True)
