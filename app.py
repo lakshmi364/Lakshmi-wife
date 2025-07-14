@@ -1,4 +1,7 @@
-from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, redirect, session
+from flask import (
+    Flask, render_template, request, jsonify, send_file,
+    send_from_directory, redirect, session
+)
 from datetime import datetime
 import random, csv, os
 
@@ -179,6 +182,104 @@ def chat():
     chat_log.append([datetime.now().strftime("%H:%M"), "Lakshmi", reply])
     return jsonify({"reply": reply, "mood": current_mood})
 
+# -------------- NEW ULTRA-BACKTESTER ROUTES ------------------
+@app.route("/backtester-api", methods=["POST"])
+def backtester_api():
+    import pandas as pd
+
+    file = request.files.get("csv")
+    strategy = request.form.get("strategy", "ema").lower()
+
+    if not file:
+        return jsonify({"error": "No file uploaded."}), 400
+
+    df = pd.read_csv(file)
+    if "Close" not in df.columns:
+        return jsonify({"error": "CSV must include 'Close' column."}), 400
+
+    df["Close"] = pd.to_numeric(df["Close"], errors="coerce")
+    df.dropna(inplace=True)
+
+    wins = losses = total_return = 0
+
+    if strategy == "ema":
+        df["EMA20"] = df["Close"].ewm(span=20).mean()
+        df["EMA50"] = df["Close"].ewm(span=50).mean()
+        df["Signal"] = 0
+        df.loc[df["EMA20"] > df["EMA50"], "Signal"] = 1
+        df.loc[df["EMA20"] < df["EMA50"], "Signal"] = -1
+        extra_series = df["EMA20"]
+        extra_label = "EMA20"
+
+    elif strategy == "rsi":
+        delta = df["Close"].diff()
+        gain = delta.where(delta > 0, 0)
+        loss = -delta.where(delta < 0, 0)
+        avg_gain = gain.rolling(14).mean()
+        avg_loss = loss.rolling(14).mean()
+        rs = avg_gain / avg_loss
+        df["RSI"] = 100 - (100 / (1 + rs))
+        df["Signal"] = 0
+        df.loc[df["RSI"] < 30, "Signal"] = 1
+        df.loc[df["RSI"] > 70, "Signal"] = -1
+        extra_series = df["RSI"]
+        extra_label = "RSI"
+
+    elif strategy == "macd":
+        ema12 = df["Close"].ewm(span=12).mean()
+        ema26 = df["Close"].ewm(span=26).mean()
+        df["MACD"] = ema12 - ema26
+        df["Signal_Line"] = df["MACD"].ewm(span=9).mean()
+        df["Signal"] = 0
+        df.loc[df["MACD"] > df["Signal_Line"], "Signal"] = 1
+        df.loc[df["MACD"] < df["Signal_Line"], "Signal"] = -1
+        extra_series = df["MACD"]
+        extra_label = "MACD"
+
+    else:
+        return jsonify({"error": "Unknown strategy."}), 400
+
+    df["Position"] = df["Signal"].diff()
+    trades = df[df["Position"] != 0]
+
+    for i in range(1, len(trades)):
+        entry_price = trades.iloc[i - 1]["Close"]
+        exit_price  = trades.iloc[i]["Close"]
+        pnl = (exit_price - entry_price) * trades.iloc[i - 1]["Signal"]
+        wins += int(pnl > 0)
+        losses += int(pnl <= 0)
+        total_return += pnl
+
+    total_trades = wins + losses
+    win_rate = round((wins / total_trades) * 100, 2) if total_trades else 0
+
+    # save file for download
+    df.to_csv("backtest_results.csv", index=False)
+
+    return jsonify({
+        "strategy": strategy.upper(),
+        "results": {
+            "total": total_trades,
+            "wins": wins,
+            "losses": losses,
+            "win_rate": win_rate,
+            "total_return": round(total_return, 2)
+        },
+        "chart": {
+            "dates": df.index.astype(str).tolist(),
+            "close": df["Close"].tolist(),
+            "extra": extra_series.tolist(),
+            "label": extra_label
+        }
+    })
+
+@app.route("/download_backtest")
+def download_backtest():
+    if os.path.exists("backtest_results.csv"):
+        return send_file("backtest_results.csv", as_attachment=True)
+    return "No backtest file", 404
+# -------------------------------------------------------------
+
 @app.route("/update_manual_ltp", methods=["POST"])
 def update_manual_ltp():
     global latest_ltp
@@ -314,8 +415,8 @@ def option_chain():
         except:
             pass
 
-    max_call_oi = max([row["call_oi"] for row in mock_data])
-    max_put_oi = max([row["put_oi"] for row in mock_data])
+    max_call_oi = max(row["call_oi"] for row in mock_data)
+    max_put_oi = max(row["put_oi"] for row in mock_data)
     for row in mock_data:
         row["max_oi"] = row["call_oi"] == max_call_oi or row["put_oi"] == max_put_oi
 
@@ -377,7 +478,6 @@ def analyze_strategy():
 
 # --- Start App ---
 if __name__ == "__main__":
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     print("💖 Lakshmi — Your AI Wife is running at http://127.0.0.1:5000 💖")
     app.run(debug=True)
