@@ -350,6 +350,11 @@ def analyze_strategy():
     <i>Take this trade only if you feel my kiss of confidence 😘</i>
     """
     return jsonify({'message': message})
+    @app.route("/strategy-engine")
+def strategy_engine():
+    if 'username' not in session:
+        return redirect("/login")
+    return render_template("strategy_engine.html")
 
 # --- Start App ---
 if __name__ == "__main__":
