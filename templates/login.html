@@ -4,10 +4,12 @@
   <meta charset="UTF-8" />
   <title>Login — Lakshmi AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://kit.fontawesome.com/a2e0e6f99b.js" crossorigin="anonymous"></script>
 </head>
 
 <body class="auth-body">
-  <!-- ───── LOGIN BOX ───── -->
+
+  <!-- 🔐 LOGIN BOX -->
   <div class="auth-container large-login-box">
     <div class="auth-header">
       <span class="auth-icon">🕉️</span>
@@ -19,27 +21,15 @@
     {% endif %}
 
     <form method="post" autocomplete="on">
-      <input type="text"
-             name="username"
-             placeholder="Username"
-             required
-             autofocus
-             class="auth-input"
-             title="Enter your registered username" />
+      <input type="text" name="username" placeholder="Username" required autofocus class="auth-input" />
 
-      <!-- password + eye toggle -->
       <div class="password-wrapper">
-        <input type="password"
-               id="password"
-               name="password"
-               placeholder="Password"
-               required
-               class="auth-input"
-               title="Password must be 6+ characters" />
-        <span class="toggle-password" onclick="togglePassword()">👁️</span>
+        <input type="password" id="password" name="password" placeholder="Password" required class="auth-input" />
+        <span class="toggle-password" onclick="togglePassword()">
+          <i id="eye-icon" class="fas fa-eye"></i>
+        </span>
       </div>
 
-      <!-- remember / forgot -->
       <div class="auth-options">
         <label><input type="checkbox" name="remember" /> Remember me</label>
         <a href="#" class="forgot-link">Forgot password?</a>
@@ -49,7 +39,6 @@
 
       <div class="divider">or</div>
 
-      <!-- Google OAuth (route: /auth/google) -->
       <a href="/auth/google" class="google-btn">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G"> Login with Google
       </a>
@@ -58,7 +47,7 @@
     <p class="auth-link">Don’t have an account? <a href="/signup">Create one</a></p>
   </div>
 
-  <!-- ───── DASHBOARD PREVIEW ───── -->
+  <!-- 📈 DASHBOARD PREVIEW -->
   <div class="dashboard-preview">
     <h3>📊 Lakshmi Dashboard Preview</h3>
     <div class="preview-grid">
@@ -68,7 +57,7 @@
       </div>
       <div class="preview-card">
         <h4>Live Strategy Panel</h4>
-        <p>Real-time charts, trade triggers &amp; risk scores.</p>
+        <p>Real-time charts, trade triggers & risk scores.</p>
       </div>
     </div>
   </div>
@@ -76,8 +65,17 @@
   <script>
     function togglePassword () {
       const pwd = document.getElementById('password');
-      pwd.type = (pwd.type === 'password') ? 'text' : 'password';
+      const icon = document.getElementById('eye-icon');
+      if (pwd.type === 'password') {
+        pwd.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        pwd.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
     }
   </script>
 </body>
-</html
+</html>
