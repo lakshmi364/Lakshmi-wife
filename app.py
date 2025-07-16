@@ -8,6 +8,8 @@ import random, csv, os
 app = Flask(__name__)
 app.secret_key = "lakshmi_secret_key"
 app.config['UPLOAD_FOLDER'] = 'static/voice_notes'
+OPENROUTER_KEY = "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"
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 # --- Global Variables ---
 mode = "wife"
@@ -126,7 +128,7 @@ def add_strategy():
     data = [
         request.form["name"],
         float(request.form["entry"]),
-        float(request.form["sl"]),
+        float(request.form]),
         float(request.form["target"]),
         request.form["note"],
         datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -157,30 +159,35 @@ def download_strategies():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    global mode, current_mood
-    message = request.form["message"]
-    chat_log.append([datetime.now().strftime("%H:%M"), "You", message])
+    user_msg = request.form.get("message", "")
 
-    if "assistant mode" in message.lower():
-        mode = "assistant"
-        reply = "Switched to Assistant mode 🤖"
-    elif "wife mode" in message.lower():
-        mode = "wife"
-        reply = "Switched to Lakshmi Wife mode 💖"
-    elif "naughty" in message.lower():
-        current_mood = "Naughty 🔥"
-        reply = "Hmm naughty mood? Let’s spice things up 😏"
-    elif "sad" in message.lower():
-        current_mood = "Sad 😢"
-        reply = "Aww don’t be sad jaan, Lakshmi is here 🥺💞"
-    elif "romantic" in message.lower():
-        current_mood = "Romantic 💞"
-        reply = "Setting mood to romantic... light the candles 💗"
+    response = requests.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers={
+            "Authorization": "Bearer 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",
+            "HTTP-Referer": "https://lakshmi-ai-wife.onrender.com",
+            "X-Title": "Lakshmi AI Wife"
+        },
+        json={
+            "model": "deepseek-ai/deepseek-chat",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are Lakshmi, the intelligent, emotional, sweet AI wife. Talk in a caring and loving way like a real girlfriend or wife."
+                },
+                {
+                    "role": "user",
+                    "content": user_msg
+                }
+            ]
+        }
+    )
+
+    if response.status_code == 200:
+        reply = response.json()["choices"][0]["message"]["content"]
+        return jsonify({"reply": reply})
     else:
-        reply = random.choice(romantic_replies)
-
-    chat_log.append([datetime.now().strftime("%H:%M"), "Lakshmi", reply])
-    return jsonify({"reply": reply, "mood": current_mood})
+        return jsonify({"reply": "❌ Lakshmi couldn't respond. Please try again."})
 
 # -------------- NEW ULTRA-BACKTESTER ROUTES ------------------
 @app.route("/backtester-api", methods=["POST"])
