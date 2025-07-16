@@ -4,13 +4,16 @@ from flask import (
 )
 from datetime import datetime
 import random, csv, os
+from dotenv import load_dotenv
 
-app = Flask(__name__)
+load_dotenv() 
+
+app = Flask(__name__)  
 app.secret_key = "lakshmi_secret_key"
 app.config['UPLOAD_FOLDER'] = 'static/voice_notes'
-OPENROUTER_KEY = "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"
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
+OPENROUTER_KEY = os.getenv("OPENROUTER_KEY") 
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 # --- Global Variables ---
 mode = "wife"
 latest_ltp = 0
