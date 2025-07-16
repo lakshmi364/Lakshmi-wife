@@ -123,15 +123,16 @@
       <a href="/ask-ai">🤖 Ask AI</a>
       <a href="/option-chain">💹 Option Chain Viewer</a>
       <a href="/backtester">🔁 Back-tester</a>
-      <a href="/neuron">🧠 Neuron Analysis</a> <!-- ✅ Neuron Feature -->
+      <a href="/neuron">🧠 Neuron Analysis</a>
     </div>
   </header>
 
   <div class="container">
+
     <!-- 💬 Romantic Chat -->
     <div class="section">
       <h3>💬 Romantic Chat (Wife)</h3>
-      <div id="chat-box"></div>
+      <div id="chat-box" style="height:200px; overflow-y:auto; border:1px solid #eee; padding:10px; border-radius:8px;"></div>
       <form id="chat-form">
         <input type="text" name="message" placeholder="Talk to Lakshmi..." required />
         <button type="submit">Send</button>
@@ -211,6 +212,7 @@
       </form>
       <a href="/download_diary" download><button>👅 Download Full Diary</button></a>
     </div>
+
   </div>
 
   <footer style="text-align:center; padding:24px;">
@@ -229,7 +231,7 @@
     }
 
     function startVoice() {
-      alert("Voice input feature is not implemented in this version.");
+      alert("🎤 Voice feature not available yet in this version.");
     }
 
     document.getElementById("chat-form").addEventListener("submit", async function(e) {
@@ -245,8 +247,8 @@
         method: "POST",
         body: formData
       });
-      const data = await res.json();
 
+      const data = await res.json();
       const chatBox = document.getElementById("chat-box");
       chatBox.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
       chatBox.innerHTML += `<p><strong>Lakshmi:</strong> ${data.reply}</p>`;
@@ -255,4 +257,4 @@
     });
   </script>
 </body>
-</html>
+  </html>
