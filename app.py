@@ -167,8 +167,8 @@ def chat():
     response = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
         headers={
-            "Authorization": "Bearer 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",
-            "HTTP-Referer": "https://lakshmi-ai-wife.onrender.com",
+           "Authorization": f"Bearer {OPENROUTER_KEY}",
+"HTTP-Referer": "https://lakshmi-ai-wife.up.railway.app",
             "X-Title": "Lakshmi AI Wife"
         },
         json={
