@@ -475,7 +475,8 @@ def analyze_strategy():
     <i>Take this trade only if you feel my kiss of confidence 😘</i>
     """
     return jsonify({'message': message})
-    @app.route("/neuron", methods=["GET", "POST"])
+
+@app.route("/neuron", methods=["GET", "POST"])
 def neuron():
     if request.method == "POST":
         data = request.get_json(silent=True) or {}
@@ -486,7 +487,6 @@ def neuron():
         result = analyze_with_neuron(price)
         return jsonify(result)
     return render_template("neuron.html")
-
 def analyze_with_neuron(price):
     try:
         if price % 7 == 0:
