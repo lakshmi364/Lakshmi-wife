@@ -1,0 +1,9 @@
+*.mp3
+*.wav
+*.zip
+*.csv
+*.pkl
+__pycache__/
+static/voice_notes/
+.env
+.DS_Stor
