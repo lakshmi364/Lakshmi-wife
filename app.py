@@ -533,6 +533,6 @@ def analyze_with_neuron(price):
         }
 
 # --- Start App ---
-import os
+ import os
 
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+api_key = os.environ.get("OPENROUTER_API_KEY")
