@@ -1,6 +1,4 @@
 {
-  "builds": [],
-  "ignoreCommand": "echo Ignoring extra files",
   "cleanUrls": true,
   "rewrites": [
     { "source": "/", "destination": "/index.html" }
