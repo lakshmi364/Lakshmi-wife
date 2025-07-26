@@ -1,23 +1,15 @@
-from flask import (
-    Flask, render_template, request, jsonify, send_file,
-    send_from_directory, redirect, session
-)
-from datetime import datetime
-import random, csv, os
+from flask import Flask
+import os
 from dotenv import load_dotenv
 
-load_dotenv() 
+load_dotenv()
 
-app = Flask(__name__)  
+app = Flask(__name__)
 app.secret_key = "lakshmi_secret_key"
 app.config['UPLOAD_FOLDER'] = 'static/voice_notes'
-
-# Ensure the upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-OPENROUTER_KEY = os.getenv("OPENROUTER_KEY") 
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-
+# DO NOT put `app.run()` for Vercel
 --- Global Variables ---
 mode = "wife"
 latest_ltp = 0
@@ -57,8 +49,7 @@ def save_user(username, password):
 # --- Routes ---
 @app.route("/")
 def home():
-    return redirect("/login")
-
+    return "<h1>💖 Lakshmi — Your AI Wife is Live 💖</h1>"
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
