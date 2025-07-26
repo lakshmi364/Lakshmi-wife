@@ -12,9 +12,13 @@ app = Flask(__name__)
 app.secret_key = "lakshmi_secret_key"
 app.config['UPLOAD_FOLDER'] = 'static/voice_notes'
 
+# Ensure the upload folder exists
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
 OPENROUTER_KEY = os.getenv("OPENROUTER_KEY") 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-# --- Global Variables ---
+
+--- Global Variables ---
 mode = "wife"
 latest_ltp = 0
 status = "Waiting..."
