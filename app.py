@@ -533,7 +533,6 @@ def analyze_with_neuron(price):
         }
 
 # --- Start App ---
-if __name__ == "__main__":
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    print("💖 Lakshmi — Your AI Wife is running at http://127.0.0.1:5000 💖")
-    app.run(debug=True)
+import os
+
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
