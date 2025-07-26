@@ -6,3 +6,17 @@
     { "src": "/(.*)", "dest": "app.py" }
   ]
 }
+{
+  "builds": [],
+  "functions": {
+    "api/**.py": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
+  "ignoreCommand": "echo Ignoring extra files",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" }
+  ]
+}
